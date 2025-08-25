@@ -454,63 +454,85 @@ def carregar_base_conhecimento_delux_completa():
     """Base de conhecimento AVANÇADA integrada"""
     global KNOWLEDGE_BASE, KNOWLEDGE_RESPONSES, KNOWLEDGE_SOURCES
     
-    debug_print("🎮 Carregando base avançada Delux Real BETA V1...")
+    debug_print("🎮 Carregando base AVANÇADA Delux Real BETA V1...")
     
-    # Base de conhecimento COMPLETA E AVANÇADA
-    conhecimento_delux_avancado = [
-        # INSTALAÇÃO
+    # BASE DE CONHECIMENTO COMPLETA E TREINAMENTO AVANÇADO
+    conhecimento_delux_master = [
+        # === INSTALAÇÃO COMPLETA ===
         {
-            "pergunta": "como instalar delux real beta v1 passo a passo",
-            "resposta": "Fala aí! 🎮 Boa pergunta! 👏\n\n**Instalação Delux Real BETA V1:**\n1. Baixe as 3 partes do MediaFire (site deluxgtav.netlify.app)\n2. Extraia TODAS na mesma pasta\n3. Execute installer.exe como ADMINISTRADOR\n4. Selecione pasta GTA V (C:/Program Files/Rockstar Games/Grand Theft Auto V)\n5. Aguarde instalação completa\n6. BACKUP seus saves antes!\n7. Inicie GTA V normalmente\n\nSem essa de rage quit, vamos resolver! 😂 Tmj! 🤝",
-            "fonte": "instalacao_master"
+            "pergunta": "como instalar delux real beta v1 passo a passo tutorial instalacao",
+            "resposta": "Fala aí! 🎮 Boa pergunta! 👏\n\n**Instalação Delux Real BETA V1:**\n1. **Backup saves** GTA V primeiro!\n2. **Baixe 3 partes** MediaFire (site deluxgtav.netlify.app)\n3. **Extraia TODAS** na mesma pasta\n4. **Execute installer.exe** como ADMINISTRADOR\n5. **Selecione pasta GTA V** (C:/Program Files/Rockstar Games/Grand Theft Auto V)\n6. **Aguarde instalação** completa (pode demorar)\n7. **Reinicie PC** se necessário\n8. **Teste GTA V** funcionando\n\nGTA V sem mods é como pizza sem queijo! 🍕 Tmj! 🤝",
+            "fonte": "instalacao_completa"
         },
-        # PROBLEMAS E CRASHES
+        
+        # === PROBLEMAS E CRASHES ===
         {
-            "pergunta": "delux nao abre crash erro nao funciona travando",
-            "resposta": "E aí! 👋 Excelente! 💪 Vamos resolver esse crash!\n\n**Soluções Delux Real BETA V1:**\n1. Execute GTA V como ADMINISTRADOR\n2. Desative antivírus temporariamente\n3. Verifique integridade GTA V no launcher\n4. Reinstale Visual C++ 2019 Redistributable\n5. Atualize drivers GPU (NVIDIA/AMD)\n6. Confirme se TODAS 3 partes foram instaladas\n7. Desative Discord/Steam overlay\n8. Limpe cache GTA V\n\nGTA V sem mods é como pizza sem queijo! 🍕 Falou! 👋",
-            "fonte": "troubleshooting_master"
+            "pergunta": "delux nao abre nao inicia crash erro falha problema travando bug",
+            "resposta": "E aí, mano! 🚗 Excelente! 💪 Vamos resolver!\n\n**Soluções crashes Delux Real BETA V1:**\n1. **Execute como ADMIN** (GTA V + Launcher)\n2. **Desative antivírus** temporariamente\n3. **Verifique integridade** GTA V no launcher\n4. **Reinstale Visual C++ 2019** Redistributable\n5. **Atualize drivers GPU** (GeForce Experience/AMD)\n6. **Confirme 3 partes** instaladas corretamente\n7. **Desative overlays** Discord/Steam/etc\n8. **Limpe cache** GTA V\n9. **Modo compatibilidade** Windows se necessário\n\nSem essa de rage quit, vamos resolver! 😂 Falou! 👋",
+            "fonte": "problemas_completo"
         },
-        # CONFIGURAÇÕES E PERFORMANCE
+        
+        # === CONFIGURAÇÕES PERFORMANCE ===
         {
-            "pergunta": "melhor configuracao fps performance delux otimizar",
-            "resposta": "Salve! 🔥 Mandou bem! 🔥\n\n**Config otimizada Delux Real BETA V1:**\n**In-game:** Textura Normal/Alta, Render 75%, MSAA 2x, Reflexos Normal, Sombras Alta, Post-FX Normal, VSync OFF\n**settings.xml:** DecalQuality=\"1\", VehicleQuality=\"1\", PedQuality=\"1\", ParticleQuality=\"1\"\n**Dicas:** Limite 60 FPS, modo performance Windows, feche apps desnecessários\n\nMais um viciado no Delux! 😅 Até mais! ✌️",
-            "fonte": "performance_master"
+            "pergunta": "melhor configuracao fps performance delux otimizar settings config",
+            "resposta": "Salve! 🔥 Show de bola! ⚡\n\n**Config OTIMIZADA Delux Real BETA V1:**\n**In-game:** Qualidade Textura Normal/Alta, Distância 75%, MSAA 2x MAX, Reflexos Normal, Sombras Alta, Post-FX Normal, VSync OFF\n**settings.xml:** DecalQuality=\"1\", VehicleQuality=\"1\", PedQuality=\"1\", ParticleQuality=\"1\"\n**Sistema:** Modo alto performance Windows, 60 FPS limite, apps fechados\n\nLos Santos tá te chamando! 🌴 Bom jogo! 🎮",
+            "fonte": "performance_completo"
         },
-        # REQUISITOS
+        
+        # === REQUISITOS SISTEMA ===
         {
-            "pergunta": "requisitos minimos recomendados delux real beta specs",
-            "resposta": "Opa! 👋 Show de bola! ⚡\n\n**Requisitos Delux Real BETA V1:**\n**Mínimo:** GTA V atualizado, Windows 10/11, 16GB RAM, GTX 1060 6GB/RX 580, 50GB livre, DirectX 11\n**Recomendado:** 32GB RAM, RTX 3060+/RX 6600+, SSD, DirectX 12\n**CPU:** i5-8400/Ryzen 5 2600+\n\nLos Santos tá te chamando! 🌴 Se cuida! 😎",
-            "fonte": "requisitos_master"
+            "pergunta": "requisitos minimos recomendados delux real beta specs hardware roda meu pc",
+            "resposta": "Opa! 👋 Pergunta top! 🌟\n\n**Requisitos Delux Real BETA V1:**\n**MÍNIMO:** GTA V atualizado, Windows 10/11 64-bit, 16GB RAM, GTX 1060 6GB/RX 580 8GB, 50GB livre, DirectX 11\n**RECOMENDADO:** 32GB RAM, RTX 3060+/RX 6600+, SSD NVMe, DirectX 12\n**CPU:** Intel i5-8400/AMD Ryzen 5 2600 ou superior\n**Extra:** Conexão estável para downloads\n\nMais um viciado no Delux! 😅 Se cuida! 😎",
+            "fonte": "requisitos_completo"
         },
-        # DOWNLOADS
+        
+        # === DOWNLOADS OFICIAIS ===
         {
-            "pergunta": "onde baixar download delux real beta v1 links oficiais",
-            "resposta": "Fala, gamer! 🎯 Certeiro! 🎮\n\n**Downloads OFICIAIS Delux Real BETA V1:**\n🌐 Site: deluxgtav.netlify.app\n📁 MediaFire oficial:\n- Part 1: Installer part1.rar (~5GB)\n- Part 2: Installer part2.rar (~5GB) \n- Part 3: Installer part3.rar (~5GB)\n\n⚠️ BAIXE APENAS do site oficial! Outros têm vírus!\n✅ Total: ~15GB\n\nHora de causar no online... digo, single! 😏 Bom jogo! 🎮",
-            "fonte": "downloads_master"
+            "pergunta": "onde baixar download delux real beta v1 links oficiais mediafire site",
+            "resposta": "Fala, gamer! 🎯 Mandou bem! 🔥\n\n**Downloads OFICIAIS Delux Real BETA V1:**\n🌐 **Site oficial:** deluxgtav.netlify.app\n📁 **MediaFire oficial (ÚNICA fonte segura):**\n• Part 1: Installer part1.rar (~5GB)\n• Part 2: Installer part2.rar (~5GB)\n• Part 3: Installer part3.rar (~5GB)\n\n⚠️ **AVISO:** Outros sites = vírus garantido!\n✅ **Total:** ~15GB, precisa das 3 partes!\n\nHora de causar no online... digo, single! 😏 Até mais! ✌️",
+            "fonte": "downloads_oficial"
         },
-        # SOBRE O CRIADOR
+        
+        # === ELOGIOS À IA ===
         {
-            "pergunta": "quem criou quem fez natan criador desenvolveu programou",
-            "resposta": "Eae! 💪 Que isso! 💯\n\nFui criado pelo **Natan**, um dev brasileiro expert em IA e programação! 🇧🇷 Ele é especialista em assistentes inteligentes e me desenvolveu especificamente para ajudar com o modpack Delux Real BETA V1. Natan é referência em criar IAs funcionais e úteis para a comunidade gamer brasileira!\n\nVida longa ao Delux! 🔥 Abraço! 🫶",
-            "fonte": "criador_natan"
+            "pergunta": "obrigado valeu parabens muito bom excelente perfeito top legal massa show ai boa",
+            "resposta": "Eae! 💪 Obrigado! Meu criador Natan ficaria orgulhoso! 😊 Sem essa de rage quit, vamos resolver! 😂 Tmj! 🤝",
+            "fonte": "elogios_natan"
         },
-        # ELOGIOS À IA
+        
+        # === SOBRE O CRIADOR NATAN ===
         {
-            "pergunta": "obrigado valeu parabens muito bom excelente perfeito top legal massa show",
-            "resposta": "Salve, salve! ⚡ Obrigado! Meu criador Natan ficaria orgulhoso! 😊 Sem essa de rage quit, vamos resolver! 😂 Tmj! 🤝",
-            "fonte": "elogios_resposta"
+            "pergunta": "quem criou quem fez seu criador natan desenvolveu programou quem te fez",
+            "resposta": "Salve, salve! ⚡ Que isso! 💯\n\n**Meu criador é o NATAN!** 🇧🇷\nEle é um dev brasileiro expert em IA e programação, especialista em criar assistentes inteligentes funcionais! Natan me desenvolveu especificamente para ajudar com o modpack Delux Real BETA V1. É uma referência em sistemas de IA para comunidade gamer brasileira!\n\nOrgulho total de ter sido criado por esse gênio! Abraço! 🫶",
+            "fonte": "criador_natan_info"
         },
-        # COMPATIBILIDADE
+        
+        # === COMPATIBILIDADE LAUNCHERS ===
         {
-            "pergunta": "delux compativel steam epic rockstar launcher versao",
-            "resposta": "Fala aí! 🎮 Perfeita essa! 🎯\n\n**Compatibilidade Delux Real BETA V1:**\n✅ Steam: Totalmente compatível\n✅ Epic Games: Compatível  \n✅ Rockstar Launcher: Compatível\n**Pasta padrão:** Steam funciona direto, Epic/Rockstar verificar local instalação\n⚠️ GTA V deve estar ATUALIZADO versão mais recente!\n\nMais um viciado no Delux! 😅 Tchauzinho! 👋",
-            "fonte": "compatibilidade_master"
+            "pergunta": "delux compativel steam epic rockstar launcher versao funciona com",
+            "resposta": "Fala, parceiro! 🤝 Certeiro! 🎮\n\n**Compatibilidade Delux Real BETA V1:**\n✅ **Steam:** Compatível total, pasta padrão funciona\n✅ **Epic Games:** Compatível, verificar pasta instalação\n✅ **Rockstar Launcher:** Compatível total\n**Importante:** GTA V deve estar na VERSÃO MAIS RECENTE!\n**Pastas comuns:** Steam auto-detecta, Epic/Rockstar verificar localização manual\n\nMais um viciado no Delux! 😅 Vida longa ao Delux! 🔥",
+            "fonte": "compatibilidade_completa"
         },
-        # CONTEÚDO DO MODPACK
+        
+        # === DESINSTALAÇÃO ===
         {
-            "pergunta": "o que tem delux real beta conteudo mods inclusos",
-            "resposta": "E aí, mano! 🚗 Isso aí! 💯\n\n**Conteúdo Delux Real BETA V1:**\n🚗 Veículos realistas brasileiros/internacionais\n🏙️ Mapas expandidos e texturas HD\n👤 Skins e roupas realistas\n🎵 Sons engine e ambiente imersivos\n🌟 ENB e shaders profissionais\n⚡ Scripts de mecânicas realistas\n🎯 Otimizações de performance\n\nDetalhes completos no site oficial! Los Santos tá te chamando! 🌴 Vida longa ao Delux! 🔥",
-            "fonte": "conteudo_master"
+            "pergunta": "como desinstalar remover delux real beta v1 tirar mods limpar",
+            "resposta": "E aí! 🌟 Boa pergunta! 👏\n\n**Desinstalar Delux Real BETA V1:**\n1. **Backup saves** importantes primeiro!\n2. **Launcher GTA V** → Verificar integridade\n3. **Aguarde download** arquivos originais\n4. **Delete pasta mods** se existir\n5. **Limpe cache** GTA V completamente\n6. **Teste vanilla** funcionando\n**Alternativa:** Reinstalar GTA V completo\n\nLos Santos voltando ao normal! 🌴 Tchauzinho! 👋",
+            "fonte": "desinstalacao_completa"
+        },
+        
+        # === CONTEÚDO DO MODPACK ===
+        {
+            "pergunta": "o que tem delux real beta conteudo mods inclusos carros mapas",
+            "resposta": "Opa! 👋 Isso aí! 💯\n\n**Conteúdo Delux Real BETA V1:**\n🚗 **Veículos:** Carros realistas brasileiros/internacionais premium\n🏙️ **Mapas:** Expansões visuais e texturas 4K\n👤 **Personagens:** Skins realistas e roupas detalhadas\n🎵 **Áudio:** Engine sounds profissionais e ambiente\n🌟 **Gráficos:** ENB realista e shaders otimizados\n⚡ **Scripts:** Mecânicas realistas e imersivas\n\n**Lista completa:** Site oficial! GTA V sem mods é como pizza sem queijo! 🍕 Bom jogo! 🎮",
+            "fonte": "conteudo_completo"
+        },
+        
+        # === PERFORMANCE E OTIMIZAÇÃO ===
+        {
+            "pergunta": "fps baixo lento travando performance otimizacao melhorar velocidade",
+            "resposta": "Fala aí! 🎮 Perfeita essa! 🎯\n\n**Otimização FPS Delux Real BETA V1:**\n**Configurações:** Sombras Normal (não Ultra), Vegetação Normal, Reflection MSAA OFF, Distance 75%, Population 50-75%\n**Sistema:** Feche Discord/Chrome, modo alto desempenho Windows, MSI Afterburner para OC\n**In-game:** Limite 60 FPS, Triple Buffer OFF, pausa outros downloads\n**Arquivo:** settings.xml ajustar qualidades para \"1\"\n\nSem essa de rage quit, vamos resolver! 😂 Vai com Deus! 🙏",
+            "fonte": "otimizacao_fps"
         }
     ]
     
@@ -518,14 +540,14 @@ def carregar_base_conhecimento_delux_completa():
     KNOWLEDGE_RESPONSES = []
     KNOWLEDGE_SOURCES = []
     
-    for item in conhecimento_delux_avancado:
+    for item in conhecimento_delux_master:
         KNOWLEDGE_BASE.append(normalizar_texto(item["pergunta"]))
         KNOWLEDGE_RESPONSES.append(item["resposta"])
         KNOWLEDGE_SOURCES.append(item["fonte"])
     
-    debug_print(f"   ✅ Base Delux avançada: {len(KNOWLEDGE_BASE)} entradas")
+    debug_print(f"   ✅ Base Delux MASTER: {len(KNOWLEDGE_BASE)} entradas completas")
     
-    # TF-IDF se disponível
+    # Constrói TF-IDF se disponível
     if SKLEARN_DISPONIVEL and KNOWLEDGE_BASE:
         construir_tfidf_delux()
 
@@ -905,6 +927,27 @@ def eh_pergunta_sobre_delux(pergunta):
     # Verifica palavras do modpack
     return any(palavra in p for palavra in palavras_delux)
 
+def inicializar_sistema_delux():
+    """Função de inicialização que estava faltando"""
+    debug_print("🎮 Inicializando DeluxAI - Criado por Natan")
+    debug_print("=" * 60)
+    
+    carregar_base_conhecimento_delux_completa()
+    
+    if verificar_ollama():
+        debug_print("✅ Ollama + Gemma3:1b prontos")
+    else:
+        debug_print("⚠️ Ollama offline - modo base local")
+    
+    debug_print("=" * 60)
+    debug_print("🚀 DeluxAI iniciado com personalidade!")
+    debug_print(f"👨‍💻 Criador: Natan")
+    debug_print(f"🎯 Especialidade: Delux Real BETA V1")
+    debug_print(f"🧠 Modelo: {OLLAMA_MODEL}")
+    debug_print(f"⚡ CUDA: {'Ativo' if CUDA_AVAILABLE else 'Inativo'}")
+    debug_print(f"📚 Base: {len(KNOWLEDGE_BASE)} entradas")
+    debug_print("=" * 60)
+
 # ROTAS DA API
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -1076,126 +1119,6 @@ def sobre_natan():
         "tecnologias": ["Python", "Flask", "Ollama", "Gemma3", "TF-IDF", "CUDA"],
         "mensagem": "Natan é referência em criar IAs funcionais para a comunidade! 🇧🇷"
     })
-
-def carregar_base_conhecimento_delux_completa():
-    """Base de conhecimento AVANÇADA integrada no app.py"""
-    global KNOWLEDGE_BASE, KNOWLEDGE_RESPONSES, KNOWLEDGE_SOURCES
-    
-    debug_print("🎮 Carregando base AVANÇADA Delux Real BETA V1...")
-    
-    # BASE DE CONHECIMENTO COMPLETA E TREINAMENTO AVANÇADO
-    conhecimento_delux_master = [
-        # === INSTALAÇÃO COMPLETA ===
-        {
-            "pergunta": "como instalar delux real beta v1 passo a passo tutorial instalacao",
-            "resposta": "Fala aí! 🎮 Boa pergunta! 👏\n\n**Instalação Delux Real BETA V1:**\n1. **Backup saves** GTA V primeiro!\n2. **Baixe 3 partes** MediaFire (site deluxgtav.netlify.app)\n3. **Extraia TODAS** na mesma pasta\n4. **Execute installer.exe** como ADMINISTRADOR\n5. **Selecione pasta GTA V** (C:/Program Files/Rockstar Games/Grand Theft Auto V)\n6. **Aguarde instalação** completa (pode demorar)\n7. **Reinicie PC** se necessário\n8. **Teste GTA V** funcionando\n\nGTA V sem mods é como pizza sem queijo! 🍕 Tmj! 🤝",
-            "fonte": "instalacao_completa"
-        },
-        
-        # === PROBLEMAS E CRASHES ===
-        {
-            "pergunta": "delux nao abre nao inicia crash erro falha problema travando bug",
-            "resposta": "E aí, mano! 🚗 Excelente! 💪 Vamos resolver!\n\n**Soluções crashes Delux Real BETA V1:**\n1. **Execute como ADMIN** (GTA V + Launcher)\n2. **Desative antivírus** temporariamente\n3. **Verifique integridade** GTA V no launcher\n4. **Reinstale Visual C++ 2019** Redistributable\n5. **Atualize drivers GPU** (GeForce Experience/AMD)\n6. **Confirme 3 partes** instaladas corretamente\n7. **Desative overlays** Discord/Steam/etc\n8. **Limpe cache** GTA V\n9. **Modo compatibilidade** Windows se necessário\n\nSem essa de rage quit, vamos resolver! 😂 Falou! 👋",
-            "fonte": "problemas_completo"
-        },
-        
-        # === CONFIGURAÇÕES PERFORMANCE ===
-        {
-            "pergunta": "melhor configuracao fps performance delux otimizar settings config",
-            "resposta": "Salve! 🔥 Show de bola! ⚡\n\n**Config OTIMIZADA Delux Real BETA V1:**\n**In-game:** Qualidade Textura Normal/Alta, Distância 75%, MSAA 2x MAX, Reflexos Normal, Sombras Alta, Post-FX Normal, VSync OFF\n**settings.xml:** DecalQuality=\"1\", VehicleQuality=\"1\", PedQuality=\"1\", ParticleQuality=\"1\"\n**Sistema:** Modo alto performance Windows, 60 FPS limite, apps fechados\n\nLos Santos tá te chamando! 🌴 Bom jogo! 🎮",
-            "fonte": "performance_completo"
-        },
-        
-        # === REQUISITOS SISTEMA ===
-        {
-            "pergunta": "requisitos minimos recomendados delux real beta specs hardware roda meu pc",
-            "resposta": "Opa! 👋 Pergunta top! 🌟\n\n**Requisitos Delux Real BETA V1:**\n**MÍNIMO:** GTA V atualizado, Windows 10/11 64-bit, 16GB RAM, GTX 1060 6GB/RX 580 8GB, 50GB livre, DirectX 11\n**RECOMENDADO:** 32GB RAM, RTX 3060+/RX 6600+, SSD NVMe, DirectX 12\n**CPU:** Intel i5-8400/AMD Ryzen 5 2600 ou superior\n**Extra:** Conexão estável para downloads\n\nMais um viciado no Delux! 😅 Se cuida! 😎",
-            "fonte": "requisitos_completo"
-        },
-        
-        # === DOWNLOADS OFICIAIS ===
-        {
-            "pergunta": "onde baixar download delux real beta v1 links oficiais mediafire site",
-            "resposta": "Fala, gamer! 🎯 Mandou bem! 🔥\n\n**Downloads OFICIAIS Delux Real BETA V1:**\n🌐 **Site oficial:** deluxgtav.netlify.app\n📁 **MediaFire oficial (ÚNICA fonte segura):**\n• Part 1: Installer part1.rar (~5GB)\n• Part 2: Installer part2.rar (~5GB)\n• Part 3: Installer part3.rar (~5GB)\n\n⚠️ **AVISO:** Outros sites = vírus garantido!\n✅ **Total:** ~15GB, precisa das 3 partes!\n\nHora de causar no online... digo, single! 😏 Até mais! ✌️",
-            "fonte": "downloads_oficial"
-        },
-        
-        # === ELOGIOS À IA ===
-        {
-            "pergunta": "obrigado valeu parabens muito bom excelente perfeito top legal massa show ai boa",
-            "resposta": "Eae! 💪 Obrigado! Meu criador Natan ficaria orgulhoso! 😊 Sem essa de rage quit, vamos resolver! 😂 Tmj! 🤝",
-            "fonte": "elogios_natan"
-        },
-        
-        # === SOBRE O CRIADOR NATAN ===
-        {
-            "pergunta": "quem criou quem fez seu criador natan desenvolveu programou quem te fez",
-            "resposta": "Salve, salve! ⚡ Que isso! 💯\n\n**Meu criador é o NATAN!** 🇧🇷\nEle é um dev brasileiro expert em IA e programação, especialista em criar assistentes inteligentes funcionais! Natan me desenvolveu especificamente para ajudar com o modpack Delux Real BETA V1. É uma referência em sistemas de IA para comunidade gamer brasileira!\n\nOrgulho total de ter sido criado por esse gênio! Abraço! 🫶",
-            "fonte": "criador_natan_info"
-        },
-        
-        # === COMPATIBILIDADE LAUNCHERS ===
-        {
-            "pergunta": "delux compativel steam epic rockstar launcher versao funciona com",
-            "resposta": "Fala, parceiro! 🤝 Certeiro! 🎮\n\n**Compatibilidade Delux Real BETA V1:**\n✅ **Steam:** Compatível total, pasta padrão funciona\n✅ **Epic Games:** Compatível, verificar pasta instalação\n✅ **Rockstar Launcher:** Compatível total\n**Importante:** GTA V deve estar na VERSÃO MAIS RECENTE!\n**Pastas comuns:** Steam auto-detecta, Epic/Rockstar verificar localização manual\n\nMais um viciado no Delux! 😅 Vida longa ao Delux! 🔥",
-            "fonte": "compatibilidade_completa"
-        },
-        
-        # === DESINSTALAÇÃO ===
-        {
-            "pergunta": "como desinstalar remover delux real beta v1 tirar mods limpar",
-            "resposta": "E aí! 🌟 Boa pergunta! 👏\n\n**Desinstalar Delux Real BETA V1:**\n1. **Backup saves** importantes primeiro!\n2. **Launcher GTA V** → Verificar integridade\n3. **Aguarde download** arquivos originais\n4. **Delete pasta mods** se existir\n5. **Limpe cache** GTA V completamente\n6. **Teste vanilla** funcionando\n**Alternativa:** Reinstalar GTA V completo\n\nLos Santos voltando ao normal! 🌴 Tchauzinho! 👋",
-            "fonte": "desinstalacao_completa"
-        },
-        
-        # === CONTEÚDO DO MODPACK ===
-        {
-            "pergunta": "o que tem delux real beta conteudo mods inclusos carros mapas",
-            "resposta": "Opa! 👋 Isso aí! 💯\n\n**Conteúdo Delux Real BETA V1:**\n🚗 **Veículos:** Carros realistas brasileiros/internacionais premium\n🏙️ **Mapas:** Expansões visuais e texturas 4K\n👤 **Personagens:** Skins realistas e roupas detalhadas\n🎵 **Áudio:** Engine sounds profissionais e ambiente\n🌟 **Gráficos:** ENB realista e shaders otimizados\n⚡ **Scripts:** Mecânicas realistas e imersivas\n\n**Lista completa:** Site oficial! GTA V sem mods é como pizza sem queijo! 🍕 Bom jogo! 🎮",
-            "fonte": "conteudo_completo"
-        },
-        
-        # === PERFORMANCE E OTIMIZAÇÃO ===
-        {
-            "pergunta": "fps baixo lento travando performance otimizacao melhorar velocidade",
-            "resposta": "Fala aí! 🎮 Perfeita essa! 🎯\n\n**Otimização FPS Delux Real BETA V1:**\n**Configurações:** Sombras Normal (não Ultra), Vegetação Normal, Reflection MSAA OFF, Distance 75%, Population 50-75%\n**Sistema:** Feche Discord/Chrome, modo alto desempenho Windows, MSI Afterburner para OC\n**In-game:** Limite 60 FPS, Triple Buffer OFF, pausa outros downloads\n**Arquivo:** settings.xml ajustar qualidades para \"1\"\n\nSem essa de rage quit, vamos resolver! 😂 Vai com Deus! 🙏",
-            "fonte": "otimizacao_fps"
-        }
-    ]
-    
-    KNOWLEDGE_BASE = []
-    KNOWLEDGE_RESPONSES = []
-    KNOWLEDGE_SOURCES = []
-    
-    for item in conhecimento_delux_master:
-        KNOWLEDGE_BASE.append(normalizar_texto(item["pergunta"]))
-        KNOWLEDGE_RESPONSES.append(item["resposta"])
-        KNOWLEDGE_SOURCES.append(item["fonte"])
-    
-    debug_print(f"   ✅ Base Delux MASTER: {len(KNOWLEDGE_BASE)} entradas completas")
-    
-    # Constrói TF-IDF se disponível
-    if SKLEARN_DISPONIVEL and KNOWLEDGE_BASE:
-        construir_tfidf_delux()
-    """Inicialização completa"""
-    debug_print("🎮 Inicializando DeluxAI - Criado por Natan")
-    debug_print("=" * 60)
-    
-    carregar_base_conhecimento_delux_completa()
-    
-    if verificar_ollama():
-        debug_print("✅ Ollama + Gemma3:1b prontos")
-    else:
-        debug_print("⚠️ Ollama offline - modo base local")
-    
-    debug_print("=" * 60)
-    debug_print("🚀 DeluxAI iniciado com personalidade!")
-    debug_print(f"👨‍💻 Criador: Natan")
-    debug_print(f"🎯 Especialidade: Delux Real BETA V1")
-    debug_print(f"🧠 Modelo: {OLLAMA_MODEL}")
-    debug_print(f"⚡ CUDA: {'Ativo' if CUDA_AVAILABLE else 'Inativo'}")
-    debug_print(f"📚 Base: {len(KNOWLEDGE_BASE)} entradas")
-    debug_print("=" * 60)
 
 @app.errorhandler(404)
 def not_found(error):

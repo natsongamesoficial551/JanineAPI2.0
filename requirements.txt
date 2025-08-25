@@ -3,5 +3,3 @@ flask-cors
 unidecode
 scikit-learn
 requests
-schedule
-torch
