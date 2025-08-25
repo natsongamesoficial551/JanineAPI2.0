@@ -13,7 +13,14 @@ from functools import lru_cache
 import hashlib
 import unicodedata
 from collections import defaultdict
-import schedule
+
+# Importação condicional do schedule para evitar erro
+try:
+    import schedule
+    SCHEDULE_AVAILABLE = True
+except ImportError:
+    SCHEDULE_AVAILABLE = False
+    print("⚠️ Biblioteca 'schedule' não encontrada. Auto-ping desabilitado.")
 
 warnings.filterwarnings('ignore')
 
@@ -26,7 +33,7 @@ OLLAMA_MODEL = "gemma3:1b"  # Modelo Gemma 3 1B (815 MB)
 
 # Configuração Auto-Ping
 AUTO_PING_URL = os.getenv("AUTO_PING")  # URL do seu app no Render
-AUTO_PING_ENABLED = bool(AUTO_PING_URL)
+AUTO_PING_ENABLED = bool(AUTO_PING_URL) and SCHEDULE_AVAILABLE
 
 # Configuração CUDA
 CUDA_AVAILABLE = False
@@ -749,25 +756,43 @@ def auto_ping():
     except Exception as e:
         debug_print(f"❌ Erro inesperado no auto-ping: {e}")
 
+def auto_ping_alternativo():
+    """Sistema de auto-ping alternativo sem biblioteca schedule"""
+    if not AUTO_PING_ENABLED:
+        return
+    
+    def ping_loop():
+        while True:
+            time.sleep(300)  # 5 minutos = 300 segundos
+            auto_ping()
+    
+    ping_thread = threading.Thread(target=ping_loop, daemon=True)
+    ping_thread.start()
+    debug_print("🔄 Auto-ping alternativo iniciado (sem schedule)")
+
 def iniciar_auto_ping():
-    """Inicia o sistema de auto-ping em thread separada"""
+    """Inicia o sistema de auto-ping com fallback"""
     if not AUTO_PING_ENABLED:
         debug_print("⚠️ Auto-ping desabilitado (variável AUTO_PING não definida)")
         return
     
     debug_print(f"🔄 Auto-ping habilitado para: {AUTO_PING_URL}")
     
-    # Configura o schedule para executar a cada 5 minutos
-    schedule.every(5).minutes.do(auto_ping)
-    
-    def run_scheduler():
-        while True:
-            schedule.run_pending()
-            time.sleep(30)  # Verifica a cada 30 segundos
-    
-    # Executa o scheduler em thread separada
-    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
-    scheduler_thread.start()
+    if SCHEDULE_AVAILABLE:
+        # Usa biblioteca schedule se disponível
+        schedule.every(5).minutes.do(auto_ping)
+        
+        def run_scheduler():
+            while True:
+                schedule.run_pending()
+                time.sleep(30)
+        
+        scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+        scheduler_thread.start()
+        debug_print("📅 Auto-ping com schedule iniciado")
+    else:
+        # Usa sistema alternativo
+        auto_ping_alternativo()
 
 def detectar_categoria_expandida(pergunta):
     """Detecção expandida de categorias com mais cenários"""
@@ -1144,7 +1169,7 @@ def melhorar_resposta_delux_expandida(resposta, categoria, complexidade):
     nao_tem_contato = "borgesnatan09" not in resposta and "21 99282-6074" not in resposta
     
     if precisa_contato and tem_espaco and nao_tem_contato:
-        resposta += f"\n\n📞 **Suporte direto:** borgesnatan09@gmail.com | WhatsApp: +55 21 99282-6074"
+        resposta += f"\n\nSupporte direto: borgesnatan09@gmail.com | WhatsApp: +55 21 99282-6074"
     
     return resposta.strip()
 
@@ -1155,126 +1180,125 @@ def resposta_fallback_delux_expandida(pergunta):
     
     # Respostas sociais
     if categoria == "saudacao":
-        return "Oi! 👋 Sou a DeluxAI, sua especialista no Delux Modpack GTA V! Como posso te ajudar hoje?"
+        return "Oi! Sou a DeluxAI, sua especialista no Delux Modpack GTA V! Como posso te ajudar hoje?"
     
     elif categoria == "despedida":
-        return "Até logo! 👋 Qualquer dúvida sobre o Delux Modpack, estarei sempre aqui! 🎮"
+        return "Até logo! Qualquer dúvida sobre o Delux Modpack, estarei sempre aqui!"
     
     elif categoria == "elogio":
-        return "Muito obrigada! 😊 Todo crédito vai pro Natan Borges (@Ntzinnn87) que criou esse modpack incrível!"
+        return "Muito obrigada! Todo crédito vai pro Natan Borges (@Ntzinnn87) que criou esse modpack incrível!"
     
     elif categoria == "humor":
-        return "Haha! 😄 Adoro um bom humor! Agora me conta, precisa de ajuda com o modpack?"
+        return "Haha! Adoro um bom humor! Agora me conta, precisa de ajuda com o modpack?"
     
     elif categoria == "sobre_ia":
-        return "Sou a DeluxAI, assistente especializada criada pelo Natan Borges! Minha missão é te ajudar com tudo sobre o Delux Modpack GTA V. 🤖🎮"
+        return "Sou a DeluxAI, assistente especializada criada pelo Natan Borges! Minha missão é te ajudar com tudo sobre o Delux Modpack GTA V."
     
     # Tratamento especial para mobile/celular
     elif categoria == "notebook_mobile":
         if any(word in pergunta.lower() for word in ['mobile', 'celular', 'android', 'ios', 'smartphone']):
-            return """📱 **Delux Modpack em Celular/Mobile:**
+            return """Delux Modpack em Celular/Mobile:
 
-❌ **IMPOSSÍVEL rodar em celular!**
-• GTA V é exclusivo para PC/Windows
-• Não existe GTA V oficial para Android/iOS
-• Modpack funciona apenas com GTA V para PC
+IMPOSSÍVEL rodar em celular!
+- GTA V é exclusivo para PC/Windows
+- Não existe GTA V oficial para Android/iOS
+- Modpack funciona apenas com GTA V para PC
 
-✅ **Alternativas:**
-• Notebook gamer com GPU dedicada
-• PC desktop com Windows 10/11
-• Use Steam Link/Parsec para jogar remotamente
+Alternativas:
+- Notebook gamer com GPU dedicada
+- PC desktop com Windows 10/11
+- Use Steam Link/Parsec para jogar remotamente
 
-**Requisitos PC:** GTX 1050 Ti mínima, 8GB RAM, Windows 10/11"""
+Requisitos PC: GTX 1050 Ti mínima, 8GB RAM, Windows 10/11"""
         else:
-            return """💻 **Delux Modpack em Notebook:**
+            return """Delux Modpack em Notebook:
 
-✅ **FUNCIONA SIM em notebook gamer!**
-• Precisa GPU dedicada (GTX 1050 Ti mínima)
-• 8GB RAM, Windows 10/11, 20GB espaço
-• SSD melhora performance significativamente
+FUNCIONA SIM em notebook gamer!
+- Precisa GPU dedicada (GTX 1050 Ti mínima)
+- 8GB RAM, Windows 10/11, 20GB espaço
+- SSD melhora performance significativamente
 
-**Testados:** Notebooks com GTX 1660, RTX 3060, RTX 4060
-**Dica:** Use modo performance e monitore temperatura
+Testados: Notebooks com GTX 1660, RTX 3060, RTX 4060
+Dica: Use modo performance e monitore temperatura
 
-**Resultado:** Experiência completa em notebook adequado!"""
+Resultado: Experiência completa em notebook adequado!"""
     
     # Outras categorias específicas...
     elif categoria == "vale_a_pena":
         if complexidade in ["complexa", "muito_complexa"]:
-            return """🎮 **Vale MUITO a pena! Aqui está o porquê:**
+            return """Vale MUITO a pena! Aqui está o porquê:
 
-🔥 **DIFERENCIAIS ÚNICOS:**
-• **100% GRATUITO** (FiveM custa R$20+ mensais)
-• **Experiência brasileira autêntica** (carros, mapas, NPCs nacionais)
-• **Funciona offline** (não precisa internet após instalar)
-• **Singleplayer** (sem lag, sem trolls)
-• **Suporte em português** direto com o desenvolvedor
+DIFERENCIAIS ÚNICOS:
+- 100% GRATUITO (FiveM custa R$20+ mensais)
+- Experiência brasileira autêntica (carros, mapas, NPCs nacionais)
+- Funciona offline (não precisa internet após instalar)
+- Singleplayer (sem lag, sem trolls)
+- Suporte em português direto com o desenvolvedor
 
-🎯 **O QUE VOCÊ GANHA:**
-• GTA V completamente transformado
-• Roleplay realista com economia brasileira
-• Trabalhos (Uber, entregador, segurança)
-• Carros brasileiros (Civic, Corolla, HB20)
-• Mapas de favelas e cidades nacionais
-• Sistemas de fome, sede, sono
-• Casas para comprar e alugar
+O QUE VOCÊ GANHA:
+- GTA V completamente transformado
+- Roleplay realista com economia brasileira
+- Trabalhos (Uber, entregador, segurança)
+- Carros brasileiros (Civic, Corolla, HB20)
+- Mapas de favelas e cidades nacionais
+- Sistemas de fome, sede, sono
+- Casas para comprar e alugar
 
-💰 **COMPARAÇÃO:**
-• FiveM: Pago, apenas online, em inglês
-• RageMP: Complexo, apenas multiplayer
-• **Delux: Grátis, offline, brasileiro, completo**
+COMPARAÇÃO:
+- FiveM: Pago, apenas online, em inglês
+- RageMP: Complexo, apenas multiplayer
+- Delux: Grátis, offline, brasileiro, completo
 
-📞 **Teste sem compromisso:** deluxgtav.netlify.app"""
+Teste sem compromisso: deluxgtav.netlify.app"""
         else:
-            return """🎮 **DEFINITIVAMENTE vale a pena!**
+            return """DEFINITIVAMENTE vale a pena!
 
-• **100% gratuito** (diferente do FiveM pago)
-• **Experiência brasileira** completa  
-• **Offline** - sem lag ou trolls
-• **RP realista** com economia nacional
-• **Suporte em português**
+- 100% gratuito (diferente do FiveM pago)
+- Experiência brasileira completa  
+- Offline - sem lag ou trolls
+- RP realista com economia nacional
+- Suporte em português
 
-**Site:** deluxgtav.netlify.app
-**Instagram:** @Ntzinnn87"""
+Site: deluxgtav.netlify.app
+Instagram: @Ntzinnn87"""
     
-    # Continua implementação para outras categorias...
+    # Fallback geral
     else:
-        # Fallback geral
         if complexidade in ["complexa", "muito_complexa"]:
-            return """🎮 **Delux Modpack GTA V - Informações Completas**
+            return """Delux Modpack GTA V - Informações Completas
 
-🇧🇷 **O QUE É:**
+O QUE É:
 Modpack de roleplay realista brasileiro para GTA V singleplayer, desenvolvido por Natan Borges (@Ntzinnn87). Transforma completamente o jogo em experiência brasileira autêntica.
 
-🎯 **PRINCIPAIS CARACTERÍSTICAS:**
-• **Roleplay completo:** Sistemas de fome, sede, sono, trabalho
-• **Conteúdo brasileiro:** Carros nacionais, mapas de favelas, NPCs BR
-• **Economia realista:** Salários brasileiros, banco funcional
-• **Trabalhos:** Uber, entregador, segurança, construção
-• **100% gratuito** com suporte em português
+PRINCIPAIS CARACTERÍSTICAS:
+- Roleplay completo: Sistemas de fome, sede, sono, trabalho
+- Conteúdo brasileiro: Carros nacionais, mapas de favelas, NPCs BR
+- Economia realista: Salários brasileiros, banco funcional
+- Trabalhos: Uber, entregador, segurança, construção
+- 100% gratuito com suporte em português
 
-💻 **COMPATIBILIDADE:**
-• Windows 10/11 + GTA V original
-• GTX 1060/RX 580 mínimo
-• 8GB RAM (16GB recomendado)
-• **NÃO funciona em celular/mobile**
+COMPATIBILIDADE:
+- Windows 10/11 + GTA V original
+- GTX 1060/RX 580 mínimo
+- 8GB RAM (16GB recomendado)
+- NÃO funciona em celular/mobile
 
-📞 **SUPORTE OFICIAL:**
-• Site: deluxgtav.netlify.app
-• Instagram: @Ntzinnn87  
-• Email: borgesnatan09@gmail.com
-• WhatsApp: +55 21 99282-6074"""
+SUPORTE OFICIAL:
+- Site: deluxgtav.netlify.app
+- Instagram: @Ntzinnn87  
+- Email: borgesnatan09@gmail.com
+- WhatsApp: +55 21 99282-6074"""
         else:
-            return """🎮 **Delux Modpack GTA V**
+            return """Delux Modpack GTA V
 
 Modpack RP brasileiro gratuito para PC/notebook.
 
-**Inclui:** Carros BR, mapas nacionais, sistemas realistas.
-**Criador:** Natan Borges (@Ntzinnn87)
-**Site:** deluxgtav.netlify.app
-**Suporte:** borgesnatan09@gmail.com
+Inclui: Carros BR, mapas nacionais, sistemas realistas.
+Criador: Natan Borges (@Ntzinnn87)
+Site: deluxgtav.netlify.app
+Suporte: borgesnatan09@gmail.com
 
-**Importante:** Apenas PC - não funciona em celular!"""
+Importante: Apenas PC - não funciona em celular!"""
 
 @app.route('/')
 def home():
@@ -1286,6 +1310,7 @@ def home():
         "status": "online",
         "cuda_disponivel": CUDA_AVAILABLE,
         "auto_ping": AUTO_PING_ENABLED,
+        "schedule_disponivel": SCHEDULE_AVAILABLE,
         "especialidade": "Delux Modpack GTA V",
         "compatibilidade": "PC/Notebook apenas - NÃO mobile"
     })
@@ -1298,7 +1323,7 @@ def chat():
         
         if not pergunta:
             return jsonify({
-                "response": "Por favor, faça uma pergunta sobre o Delux Modpack GTA V! Estou aqui para te ajudar! 🎮",
+                "response": "Por favor, faça uma pergunta sobre o Delux Modpack GTA V! Estou aqui para te ajudar!",
                 "error": "Mensagem vazia"
             }), 400
         
@@ -1375,6 +1400,7 @@ def status():
         "gpu_info": GPU_NAME,
         "auto_ping_ativo": AUTO_PING_ENABLED,
         "auto_ping_url": AUTO_PING_URL if AUTO_PING_ENABLED else "Desabilitado",
+        "schedule_disponivel": SCHEDULE_AVAILABLE,
         "especialidade": "Delux Modpack GTA V",
         "cache_entries": len(CACHE_RESPOSTAS),
         "desenvolvedor": "Natan Borges (@Ntzinnn87)",
@@ -1418,12 +1444,13 @@ if __name__ == '__main__':
         debug_print(f"📱 Modelo: {OLLAMA_MODEL} (815MB)")
         debug_print(f"🔧 CUDA: {'Ativo' if CUDA_AVAILABLE else 'Inativo'}")
         debug_print(f"🔄 Auto-ping: {'Ativo' if AUTO_PING_ENABLED else 'Inativo'}")
+        debug_print(f"📅 Schedule: {'Disponível' if SCHEDULE_AVAILABLE else 'Indisponível (usando alternativo)'}")
         if AUTO_PING_ENABLED:
             debug_print(f"📡 URL Auto-ping: {AUTO_PING_URL}")
         debug_print(f"👨‍💻 Desenvolvedor: Natan Borges (@Ntzinnn87)")
         debug_print("🎮 Especialidade: Delux Modpack GTA V")
         debug_print("📵 Compatibilidade: PC/Notebook apenas - NÃO mobile")
-        debug_print("🆕 Correções: Sintaxe + Auto-ping implementado")
+        debug_print("🆕 Correções: Importação schedule condicional + fallback auto-ping")
         debug_print("=" * 70)
         
         # Inicia auto-ping se habilitado
