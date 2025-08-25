@@ -13,6 +13,7 @@ from functools import lru_cache
 import hashlib
 import unicodedata
 from collections import defaultdict
+import schedule
 
 warnings.filterwarnings('ignore')
 
@@ -22,6 +23,10 @@ CORS(app)
 # Configuração Ollama com Gemma 3 1B
 OLLAMA_BASE_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = "gemma3:1b"  # Modelo Gemma 3 1B (815 MB)
+
+# Configuração Auto-Ping
+AUTO_PING_URL = os.getenv("AUTO_PING")  # URL do seu app no Render
+AUTO_PING_ENABLED = bool(AUTO_PING_URL)
 
 # Configuração CUDA
 CUDA_AVAILABLE = False
@@ -64,7 +69,7 @@ INFORMAÇÕES BÁSICAS:
 - Nome: Delux Modpack GTA V
 - Versão: Beta 1.0
 - Criador: Natan Borges (@Ntzinnn87)
-- Tipo: Modpack de Roleplay Realista para Singleplayer
+- Tipo: Modpack de Roleplay Realista para PC/Notebook
 - Status: GRATUITO e em desenvolvimento ativo
 - Foco: Experiência brasileira no GTA V
 - Site oficial: deluxgtav.netlify.app
@@ -94,6 +99,11 @@ CARACTERÍSTICAS DETALHADAS:
 - Interface modernizada
 - Sons brasileiros
 - Física de veículos realista
+
+COMPATIBILIDADE IMPORTANTE:
+- FUNCIONA: PC Windows 10/11, notebooks gamer com GPU dedicada
+- NÃO FUNCIONA: Celular, mobile, Android, iOS (GTA V é apenas PC)
+- REQUER: GTA V original (Steam/Epic/Rockstar)
 
 REQUISITOS SISTEMA COMPLETOS:
 MÍNIMO ABSOLUTO:
@@ -301,6 +311,7 @@ FUNCIONA COM:
 - GTA V Epic Games (compatível)  
 - GTA V Rockstar Games (compatível)
 - Windows 10/11 64-bit
+- Notebooks gamer com GPU dedicada
 - Outros mods (com cuidado)
 
 NÃO FUNCIONA COM:
@@ -308,7 +319,8 @@ NÃO FUNCIONA COM:
 - GTA Online (apenas singleplayer)
 - Windows 32-bit
 - Versões muito antigas do GTA V
-- ReShade extremo
+- Celular/Mobile/Android/iOS (impossível)
+- GPU integrada (performance ruim)
 
 MODS COMPATÍVEIS:
 - ENB leves
@@ -411,7 +423,10 @@ Q: Modpack tem vírus?
 R: NÃO. Antivírus podem dar falso positivo em DLLs.
 
 Q: Funciona no notebook gamer?
-R: SIM, desde que atenda requisitos mínimos.
+R: SIM, desde que atenda requisitos mínimos com GPU dedicada.
+
+Q: Funciona no celular/mobile?
+R: NÃO. GTA V é exclusivo para PC. Impossível rodar em mobile.
 
 Q: Quantos GB ocupa instalado?
 R: Aproximadamente 15GB adicionais ao GTA V.
@@ -513,7 +528,7 @@ Pergunta: {pergunta}
 
 RESPOSTA TÉCNICA ESPECÍFICA:
 - Compatibilidade notebook gamer
-- Requisitos específicos mobile
+- IMPOSSIBILIDADE em mobile/celular
 - Limitações e considerações
 - Recomendações hardware
 - Entre 100-180 palavras""",
@@ -717,6 +732,42 @@ def debug_print(mensagem):
     """Print com timestamp melhorado"""
     timestamp = time.strftime("%H:%M:%S")
     print(f"[{timestamp}] {mensagem}")
+
+def auto_ping():
+    """Sistema de auto-ping para manter o app ativo"""
+    if not AUTO_PING_ENABLED:
+        return
+    
+    try:
+        response = requests.get(AUTO_PING_URL, timeout=10)
+        if response.status_code == 200:
+            debug_print("✅ Auto-ping realizado com sucesso")
+        else:
+            debug_print(f"⚠️ Auto-ping retornou status {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        debug_print(f"❌ Erro no auto-ping: {e}")
+    except Exception as e:
+        debug_print(f"❌ Erro inesperado no auto-ping: {e}")
+
+def iniciar_auto_ping():
+    """Inicia o sistema de auto-ping em thread separada"""
+    if not AUTO_PING_ENABLED:
+        debug_print("⚠️ Auto-ping desabilitado (variável AUTO_PING não definida)")
+        return
+    
+    debug_print(f"🔄 Auto-ping habilitado para: {AUTO_PING_URL}")
+    
+    # Configura o schedule para executar a cada 5 minutos
+    schedule.every(5).minutes.do(auto_ping)
+    
+    def run_scheduler():
+        while True:
+            schedule.run_pending()
+            time.sleep(30)  # Verifica a cada 30 segundos
+    
+    # Executa o scheduler em thread separada
+    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+    scheduler_thread.start()
 
 def detectar_categoria_expandida(pergunta):
     """Detecção expandida de categorias com mais cenários"""
@@ -1118,19 +1169,48 @@ def resposta_fallback_delux_expandida(pergunta):
     elif categoria == "sobre_ia":
         return "Sou a DeluxAI, assistente especializada criada pelo Natan Borges! Minha missão é te ajudar com tudo sobre o Delux Modpack GTA V. 🤖🎮"
     
-    # Respostas específicas expandidas
+    # Tratamento especial para mobile/celular
+    elif categoria == "notebook_mobile":
+        if any(word in pergunta.lower() for word in ['mobile', 'celular', 'android', 'ios', 'smartphone']):
+            return """📱 **Delux Modpack em Celular/Mobile:**
+
+❌ **IMPOSSÍVEL rodar em celular!**
+• GTA V é exclusivo para PC/Windows
+• Não existe GTA V oficial para Android/iOS
+• Modpack funciona apenas com GTA V para PC
+
+✅ **Alternativas:**
+• Notebook gamer com GPU dedicada
+• PC desktop com Windows 10/11
+• Use Steam Link/Parsec para jogar remotamente
+
+**Requisitos PC:** GTX 1050 Ti mínima, 8GB RAM, Windows 10/11"""
+        else:
+            return """💻 **Delux Modpack em Notebook:**
+
+✅ **FUNCIONA SIM em notebook gamer!**
+• Precisa GPU dedicada (GTX 1050 Ti mínima)
+• 8GB RAM, Windows 10/11, 20GB espaço
+• SSD melhora performance significativamente
+
+**Testados:** Notebooks com GTX 1660, RTX 3060, RTX 4060
+**Dica:** Use modo performance e monitore temperatura
+
+**Resultado:** Experiência completa em notebook adequado!"""
+    
+    # Outras categorias específicas...
     elif categoria == "vale_a_pena":
         if complexidade in ["complexa", "muito_complexa"]:
             return """🎮 **Vale MUITO a pena! Aqui está o porquê:**
 
-**🔥 DIFERENCIAIS ÚNICOS:**
+🔥 **DIFERENCIAIS ÚNICOS:**
 • **100% GRATUITO** (FiveM custa R$20+ mensais)
 • **Experiência brasileira autêntica** (carros, mapas, NPCs nacionais)
 • **Funciona offline** (não precisa internet após instalar)
 • **Singleplayer** (sem lag, sem trolls)
 • **Suporte em português** direto com o desenvolvedor
 
-**🎯 O QUE VOCÊ GANHA:**
+🎯 **O QUE VOCÊ GANHA:**
 • GTA V completamente transformado
 • Roleplay realista com economia brasileira
 • Trabalhos (Uber, entregador, segurança)
@@ -1139,12 +1219,12 @@ def resposta_fallback_delux_expandida(pergunta):
 • Sistemas de fome, sede, sono
 • Casas para comprar e alugar
 
-**💰 COMPARAÇÃO:**
+💰 **COMPARAÇÃO:**
 • FiveM: Pago, apenas online, em inglês
 • RageMP: Complexo, apenas multiplayer
 • **Delux: Grátis, offline, brasileiro, completo**
 
-**📞 Teste sem compromisso:** deluxgtav.netlify.app"""
+📞 **Teste sem compromisso:** deluxgtav.netlify.app"""
         else:
             return """🎮 **DEFINITIVAMENTE vale a pena!**
 
@@ -1157,175 +1237,29 @@ def resposta_fallback_delux_expandida(pergunta):
 **Site:** deluxgtav.netlify.app
 **Instagram:** @Ntzinnn87"""
     
-    elif categoria == "comparacao":
-        return """🎮 **Delux vs Concorrentes:**
-
-**🆚 FIVEM:**
-• FiveM: R$20+ mensais, apenas online
-• **Delux: Gratuito, offline, sem mensalidade**
-
-**🆚 RAGEMP:**  
-• RageMP: Complexo, multiplayer instável
-• **Delux: Simples instalar, singleplayer estável**
-
-**🆚 SAMP/MTA:**
-• SAMP/MTA: Antigo, gráficos ruins
-• **Delux: GTA V moderno, gráficos atuais**
-
-**🏆 VANTAGENS DELUX:**
-• Experiência 100% brasileira
-• Conteúdo nacional (carros, mapas, NPCs)
-• Suporte em português
-• Atualizações gratuitas
-• Sem lag de servidor
-
-**Resultado: Delux é a melhor opção para RP brasileiro!**"""
-    
-    elif categoria == "duvida_funcionamento":
-        return """🎮 **Como o Delux Modpack Transforma o GTA V:**
-
-**🔄 TRANSFORMAÇÃO COMPLETA:**
-• GTA V vira simulador de vida brasileira
-• Adiciona necessidades básicas (fome, sede, sono)
-• Cria economia realista com salários BR
-• Inclui trabalhos brasileiros (Uber, entregador)
-
-**🚗 CONTEÚDO NACIONAL:**
-• Carros brasileiros substituem originais
-• Mapas de favelas e cidades nacionais  
-• NPCs falam português e usam roupas BR
-• Lojas brasileiras (Casas Bahia, Magazine Luiza)
-
-**💼 SISTEMAS REALISTAS:**
-• Trabalhe para ganhar dinheiro
-• Compre casas e carros
-• Abasteça nos postos BR/Ipiranga
-• Sistema bancário funcional
-
-**🎯 RESULTADO:**
-Você vive uma segunda vida no Brasil virtual!"""
-    
-    elif categoria == "notebook_mobile":
-        if "mobile" in pergunta.lower() or "celular" in pergunta.lower():
-            return """📱 **Delux Modpack em Mobile:**
-
-**❌ NÃO FUNCIONA EM CELULAR**
-• GTA V não roda nativamente em Android/iOS
-• Modpack precisa de Windows 10/11
-• Arquivos muito pesados para mobile
-
-**✅ ALTERNATIVAS MOBILE:**
-• Use parsec/steam link para jogar remotamente
-• Notebook gamer é a opção mais próxima
-
-**💻 Para notebooks:**
-• Notebook gamer com GTX 1060+ funciona
-• 8GB RAM mínimo, 16GB recomendado
-• SSD melhora performance significativamente"""
-        else:
-            return """💻 **Delux Modpack em Notebook:**
-
-**✅ FUNCIONA SIM!** 
-• Notebook gamer com GTX 1060+ roda perfeitamente
-• GTX 1650/1660 também funcionam bem
-
-**📋 REQUISITOS NOTEBOOK:**
-• Windows 10/11 64-bit
-• 8GB RAM (16GB ideal)
-• GPU dedicada GTX 1050 Ti mínima
-• 20GB espaço livre
-• SSD recomendado para loading
-
-**🎯 DICA PERFORMANCE:**
-• Feche programas desnecessários
-• Use modo performance na GPU
-• Configure ventilação adequada
-• Limite FPS se esquentar muito
-
-**Resultado: Roda sim em notebook gamer!**"""
-    
-    elif categoria == "virus_seguranca":
-        return """🛡️ **Delux Modpack é 100% Seguro!**
-
-**✅ GARANTIAS DE SEGURANÇA:**
-• Desenvolvido pelo Natan Borges (desenvolvedor confiável)
-• Comunidade ativa há anos
-• Sem código malicioso
-• Links oficiais seguros
-
-**⚠️ POR QUE ANTIVÍRUS ALERTA?**
-• Arquivos DLL são "modificadores" de jogos
-• Antivírus não conhece a assinatura
-• **É FALSO POSITIVO** comum em mods
-
-**🔒 COMO TER CERTEZA:**
-• Baixe apenas dos links oficiais
-• Use antivírus atualizado
-• Adicione exceção temporária
-• Desenvolvedor tem reputação estabelecida
-
-**📞 Confiança total:** borgesnatan09@gmail.com"""
-    
-    # Continua com outras categorias técnicas detalhadas...
-    elif categoria == "download":
-        if complexidade in ["complexa", "muito_complexa"]:
-            return """🎮 **Download Completo Delux Modpack:**
-
-**📥 LINKS OFICIAIS MEDIAFIRE (3 partes obrigatórias):**
-• **Parte 1:** https://www.mediafire.com/file/h7qb14ns1rznvj6/Installer(Delux+Real+BETA)+V1+-+part1.rar/file
-• **Parte 2:** https://www.mediafire.com/file/90c82qkhqheqbkz/Installer(Delux+Real+BETA)+V1+-+part2.rar/file  
-• **Parte 3:** https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)+V1+-+part3.rar/file
-
-**📦 TAMANHOS:**
-• Parte 1: ~1.2GB | Parte 2: ~1.1GB | Parte 3: ~800MB
-• **Total:** ~3.1GB compactado
-
-**⬇️ PASSO A PASSO DOWNLOAD:**
-1. **Baixe TODAS as 3 partes** no mesmo diretório
-2. **Não renomeie** os arquivos  
-3. **Aguarde completar** todos os downloads
-4. **Extraia APENAS** part1.rar (outras vêm automaticamente)
-5. **Use WinRAR ou 7-Zip** (recomendado)
-
-**⚠️ PROBLEMAS COMUNS:**
-• Link lento: Tente VPN ou horário diferente
-• Arquivo corrompido: Baixe novamente
-• Antivírus bloqueou: Adicione exceção
-
-**📞 Suporte download:** borgesnatan09@gmail.com"""
-        else:
-            return """🎮 **Download Rápido Delux Modpack:**
-
-**📥 3 Partes MediaFire (obrigatórias):**
-• Part1: https://www.mediafire.com/file/h7qb14ns1rznvj6/
-• Part2: https://www.mediafire.com/file/90c82qkhqheqbkz/  
-• Part3: https://www.mediafire.com/file/8rjhj6js44kqqu3/
-
-**💡 Dica:** Baixe todas, extraia só a part1.rar!
-**📞 Ajuda:** borgesnatan09@gmail.com"""
-    
-    # Continue implementando outras categorias...
+    # Continua implementação para outras categorias...
     else:
         # Fallback geral
         if complexidade in ["complexa", "muito_complexa"]:
             return """🎮 **Delux Modpack GTA V - Informações Completas**
 
-**🇧🇷 O QUE É:**
+🇧🇷 **O QUE É:**
 Modpack de roleplay realista brasileiro para GTA V singleplayer, desenvolvido por Natan Borges (@Ntzinnn87). Transforma completamente o jogo em experiência brasileira autêntica.
 
-**🎯 PRINCIPAIS CARACTERÍSTICAS:**
+🎯 **PRINCIPAIS CARACTERÍSTICAS:**
 • **Roleplay completo:** Sistemas de fome, sede, sono, trabalho
 • **Conteúdo brasileiro:** Carros nacionais, mapas de favelas, NPCs BR
 • **Economia realista:** Salários brasileiros, banco funcional
 • **Trabalhos:** Uber, entregador, segurança, construção
 • **100% gratuito** com suporte em português
 
-**💻 COMPATIBILIDADE:**
+💻 **COMPATIBILIDADE:**
 • Windows 10/11 + GTA V original
 • GTX 1060/RX 580 mínimo
 • 8GB RAM (16GB recomendado)
+• **NÃO funciona em celular/mobile**
 
-**📞 SUPORTE OFICIAL:**
+📞 **SUPORTE OFICIAL:**
 • Site: deluxgtav.netlify.app
 • Instagram: @Ntzinnn87  
 • Email: borgesnatan09@gmail.com
@@ -1333,24 +1267,27 @@ Modpack de roleplay realista brasileiro para GTA V singleplayer, desenvolvido po
         else:
             return """🎮 **Delux Modpack GTA V**
 
-Modpack RP brasileiro gratuito para singleplayer.
+Modpack RP brasileiro gratuito para PC/notebook.
 
 **Inclui:** Carros BR, mapas nacionais, sistemas realistas.
 **Criador:** Natan Borges (@Ntzinnn87)
 **Site:** deluxgtav.netlify.app
-**Suporte:** borgesnatan09@gmail.com"""
+**Suporte:** borgesnatan09@gmail.com
+
+**Importante:** Apenas PC - não funciona em celular!"""
 
 @app.route('/')
 def home():
     return jsonify({
         "sistema": "DeluxAI Expandida - Assistente Especialista Delux Modpack",
-        "versao": "2.0 Expandida - Treinamento Completo",
+        "versao": "2.1 Corrigida + Auto-Ping",
         "modelo": "Gemma 3 1B",
         "desenvolvedor": "Natan Borges",
         "status": "online",
         "cuda_disponivel": CUDA_AVAILABLE,
+        "auto_ping": AUTO_PING_ENABLED,
         "especialidade": "Delux Modpack GTA V",
-        "novidades": "Conhecimento expandido + detecção de contexto avançada"
+        "compatibilidade": "PC/Notebook apenas - NÃO mobile"
     })
 
 @app.route('/chat', methods=['POST'])
@@ -1431,21 +1368,25 @@ def chat():
 def status():
     return jsonify({
         "delux_ai_status": "online_expandida",
-        "versao": "2.0 - Treinamento Expandido Completo", 
+        "versao": "2.1 - Corrigida + Auto-Ping", 
         "ollama_disponivel": verificar_ollama(),
         "modelo_ativo": OLLAMA_MODEL,
         "cuda_ativo": CUDA_AVAILABLE,
         "gpu_info": GPU_NAME,
+        "auto_ping_ativo": AUTO_PING_ENABLED,
+        "auto_ping_url": AUTO_PING_URL if AUTO_PING_ENABLED else "Desabilitado",
         "especialidade": "Delux Modpack GTA V",
         "cache_entries": len(CACHE_RESPOSTAS),
         "desenvolvedor": "Natan Borges (@Ntzinnn87)",
         "suporte": "borgesnatan09@gmail.com | WhatsApp: +55 21 99282-6074",
+        "compatibilidade": "PC/Notebook - NÃO mobile/celular",
         "recursos_expandidos": {
             "categorias_detectadas": 15,
             "niveis_complexidade": 4,
             "conhecimento_expandido": True,
             "respostas_contextuais": True,
-            "fallbacks_inteligentes": True
+            "fallbacks_inteligentes": True,
+            "auto_ping_sistema": AUTO_PING_ENABLED
         }
     })
 
@@ -1461,289 +1402,32 @@ def limpar_cache():
         "status": "success"
     })
 
-@app.route('/categorias', methods=['GET'])
-def listar_categorias():
-    """Endpoint para listar todas as categorias detectáveis"""
+@app.route('/ping', methods=['GET'])
+def ping():
+    """Endpoint para auto-ping"""
     return jsonify({
-        "categorias_sociais": [
-            "saudacao", "despedida", "elogio", "humor", "sobre_ia"
-        ],
-        "categorias_especificas": [
-            "vale_a_pena", "comparacao", "duvida_funcionamento", 
-            "notebook_mobile", "virus_seguranca", "remover_desinstalar",
-            "atualizacoes_futuro", "multiplayer_online", "modificar_personalizar"
-        ],
-        "categorias_tecnicas": [
-            "download", "instalacao", "problemas", "conteudo", "requisitos"
-        ],
-        "niveis_complexidade": [
-            "simples", "media", "complexa", "muito_complexa"
-        ],
-        "total_cenarios": 15
+        "status": "alive",
+        "timestamp": time.time(),
+        "uptime": "ok",
+        "sistema": "DeluxAI Expandida"
     })
-
-@app.route('/testar_categoria', methods=['POST'])
-def testar_categoria():
-    """Endpoint para testar detecção de categoria"""
-    try:
-        data = request.get_json()
-        pergunta = data.get('message', '').strip()
-        
-        if not pergunta:
-            return jsonify({"error": "Pergunta vazia"}), 400
-        
-        categoria = detectar_categoria_expandida(pergunta)
-        complexidade = avaliar_complexidade_expandida(pergunta)
-        
-        return jsonify({
-            "pergunta": pergunta,
-            "categoria_detectada": categoria,
-            "complexidade": complexidade,
-            "resposta_esperada": "detalhada" if complexidade in ["complexa", "muito_complexa"] else "concisa"
-        })
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Adicionar mais fallbacks específicos para completar
-def resposta_fallback_instalacao_completa(complexidade):
-    """Fallback específico para instalação"""
-    if complexidade in ["complexa", "muito_complexa"]:
-        return """🛠️ **Instalação Completa Passo a Passo Delux Modpack**
-
-**🔧 PRÉ-REQUISITOS OBRIGATÓRIOS:**
-1. **GTA V Original** (Steam/Epic/Rockstar) atualizado
-2. **Script Hook V** → Baixe em scripthookv.net
-3. **OpenIV** → Baixe em openiv.com  
-4. **Visual C++ Redistributable 2015-2022**
-5. **.NET Framework 4.8**
-6. **20GB espaço livre** no disco
-
-**📋 PREPARAÇÃO:**
-1. **Feche GTA V** completamente
-2. **Desabilite antivírus** temporariamente
-3. **Execute tudo como administrador**
-4. **Backup do save** do GTA V (Documentos/Rockstar Games)
-
-**⬇️ INSTALAÇÃO PRÉ-REQUISITOS:**
-1. **Script Hook V:**
-   • Baixe do site oficial scripthookv.net
-   • Extraia na pasta raiz do GTA V
-   • Arquivos: dinput8.dll, ScriptHookV.dll, NativeTrainer.asi
-
-2. **OpenIV:**  
-   • Instale normalmente
-   • Configure para "ASI Manager"
-   • Instale ASI Loader quando solicitado
-
-3. **Visual C++:**
-   • Baixe do site Microsoft
-   • Instale todas as versões (2015-2022)
-
-**📦 INSTALAÇÃO MODPACK:**
-1. **Baixe as 3 partes** do MediaFire no mesmo diretório
-2. **Extraia part1.rar** (outras extraem automaticamente)
-3. **Execute Installer.exe como administrador**
-4. **Selecione pasta do GTA V** (geralmente C:\Program Files\...)
-5. **Aguarde instalação** (5-15 minutos - NÃO INTERROMPA)
-6. **Reinicie o computador** após concluir
-
-**🎮 PRIMEIRA EXECUÇÃO:**
-1. **Abra GTA V normalmente** (Steam/Epic)
-2. **Aguarde carregar** completamente
-3. **Novos controles** aparecerão na tela
-4. **Siga tutorial RP** inicial
-
-**❗ VERIFICAÇÕES IMPORTANTES:**
-• Arquivos DLL na pasta GTA V?
-• OpenIV configurado corretamente?
-• Antivírus não está bloqueando?
-• Executou como administrador?
-
-**📞 Problemas na instalação:** borgesnatan09@gmail.com | WhatsApp: +55 21 99282-6074"""
-    else:
-        return """🛠️ **Instalação Rápida:**
-
-**Pré-requisitos:**
-• GTA V original + Script Hook V + OpenIV
-
-**Passos:**
-1. Baixe as 3 partes do modpack
-2. Execute installer como administrador  
-3. Selecione pasta GTA V
-4. Aguarde instalar
-5. Reinicie PC
-
-**Suporte:** borgesnatan09@gmail.com"""
-
-def resposta_fallback_problemas_completa(complexidade):
-    """Fallback específico para problemas"""
-    if complexidade in ["complexa", "muito_complexa"]:
-        return """🔧 **Soluções Detalhadas - Problemas Delux Modpack**
-
-**🚫 GAME NÃO ABRE:**
-**Causas:** Script Hook V desatualizado, GTA V desatualizado, DLLs bloqueadas
-**Soluções:**
-1. Baixe Script Hook V mais recente (scripthookv.net)
-2. Verifique integridade GTA V (Steam: Propriedades > Arquivos locais > Verificar)
-3. Adicione exceção antivírus para pasta GTA V
-4. Execute GTA V como administrador
-5. Reinstale Visual C++ Redistributable
-
-**💥 CRASHES/TRAVAMENTOS:**
-**Causas:** RAM insuficiente, drivers GPU, conflito mods, superaquecimento
-**Soluções:**
-1. **RAM:** Feche Chrome, Discord, programas pesados
-2. **Drivers:** Atualize placa de vídeo (NVIDIA/AMD)
-3. **Conflitos:** Remova outros mods temporariamente  
-4. **Temperatura:** Monitore com MSI Afterburner
-5. **Configurações:** Reduza gráficos no jogo
-
-**🐌 FPS BAIXO/PERFORMANCE:**
-**Otimizações:**
-1. **Gráficos:** Texturas Altas, Sombras Médias, MSAA 2x
-2. **Sistema:** Feche navegador, Discord, Steam overlay
-3. **Windows:** Modo performance, desative Xbox Game Bar
-4. **Hardware:** Limite FPS, monitore temperatura GPU
-5. **SSD:** Mova GTA V para SSD se possível
-
-**❌ MODS NÃO FUNCIONAM:**
-**Verificações:**
-1. Script Hook V instalado corretamente?
-2. Arquivos dinput8.dll na pasta raiz GTA V?
-3. OpenIV configurado modo ASI?
-4. GTA V é original (não pirata)?
-5. Ordem instalação: Pré-requisitos → Modpack
-
-**🔊 SEM ÁUDIO/ÁUDIO BUGADO:**
-1. Verifique configurações áudio Windows
-2. Reinstale drivers áudio
-3. Configure áudio GTA V para Estéreo
-4. Teste com fones diferentes
-
-**🎮 CONTROLES BUGADOS:**
-1. Use controle Xbox (recomendado)
-2. Configure no menu Settings do jogo
-3. Desative Steam Input se Steam
-4. Teste teclado e mouse alternativos
-
-**📞 SUPORTE PERSONALIZADO:**
-Email: borgesnatan09@gmail.com  
-WhatsApp: +55 21 99282-6074
-**Inclua:** Erro exato, configuração PC, prints se possível"""
-    else:
-        return """🔧 **Problemas Comuns:**
-
-**Game não abre:** Atualize Script Hook V
-**Crashes:** Atualize drivers GPU, feche programas  
-**FPS baixo:** Reduza gráficos, feche navegador
-**Mods não funcionam:** Verifique OpenIV e DLLs
-
-**Suporte:** borgesnatan09@gmail.com"""
-
-def resposta_fallback_conteudo_completa(complexidade):
-    """Fallback específico para conteúdo"""
-    if complexidade in ["complexa", "muito_complexa"]:
-        return """🎮 **Conteúdo Completo Delux Modpack - Experiência Brasileira Total**
-
-**🚗 VEÍCULOS BRASILEIROS:**
-• **Populares:** Gol, Palio, Celta, Fiesta, HB20, Onix
-• **Sedãs:** Civic, Corolla, Jetta, Fusion, Cruze  
-• **SUVs:** EcoSport, Duster, HR-V, Compass
-• **Esportivos:** Camaro, Mustang nacionais
-• **Motos:** CG 160, XRE 300, CB 600F, Ninja 400
-• **Utilitários:** Hilux, Ranger, S10, Amarok, Strada
-• **Transporte:** Ônibus urbanos brasileiros, caminhões nacionais
-• **Physics realistas** para todos os veículos
-
-**🗺️ MAPAS E LOCALIDADES:**
-• **Rio de Janeiro:** Favelas detalhadas (Rocinha, Cidade de Deus)
-• **São Paulo:** Centro expandido, periferias
-• **Praias:** Copacabana, Ipanema recriadas
-• **Shopping Centers:** Brasileiros funcionais
-• **Postos:** BR, Ipiranga, Shell com abastecimento real
-• **Bancos:** Bradesco, Itaú, Caixa funcionais
-• **Lojas:** Casas Bahia, Magazine Luiza, Americanas
-
-**💼 SISTEMAS DE ROLEPLAY:**
-• **Necessidades Básicas:**
-  - Fome: Decresce com tempo, afeta saúde e stamina
-  - Sede: Mais crítica, necessária a cada 30min jogo
-  - Sono: Afeta concentração, precisão ao dirigir
-  - Higiene: Sistema opcional, afeta interações NPCs
-
-• **Trabalhos Brasileiros:**
-  - **Motorista Uber/99:** Corridas pela cidade, pagamento realista
-  - **Entregador iFood/Rappi:** Delivery de comida de moto
-  - **Segurança:** Shopping centers, empresas, eventos
-  - **Construção:** Pedreiro, soldador, eletricista
-  - **Frentista:** Postos BR, atendimento aos clientes
-  - **Taxista:** Corridas tradicionais, bandeirada real
-  - **Caminhoneiro:** Entregas interestaduais
-
-**💰 ECONOMIA REALISTA:**
-• **Salário Mínimo:** R$ 1.320 base para cálculos
-• **Preços Reais:** Combustível R$ 5,50/L, alimentos preços BR
-• **Sistema Bancário:** Juros, financiamentos, cartão crédito
-• **IPVA:** Taxa anual veículos
-• **Seguro:** Obrigatório para dirigir
-• **Multas:** Radar, estacionamento proibido
-
-**🏠 SISTEMA HABITACIONAL:**
-• **Apartamentos:** Populares (R$ 800/mês), classe média (R$ 2.000/mês)
-• **Casas:** Periferia até mansões de luxo
-• **Financiamento:** Sistema FGTS simulado
-• **Decoração:** Móveis brasileiros, eletrodomésticos nacionais
-• **Contas:** Luz, água, internet mensais
-
-**👥 NPCS E AMBIENTE:**
-• **Aparência:** Roupas brasileiras, diversidade étnica real
-• **Comportamento:** Mais educados, cumprimentam
-• **Falas:** 100% português brasileiro
-• **Tráfego:** Padrões brasileiros, motocicletas frequentes
-• **Economia:** Vendedores ambulantes, camelôs
-
-**🎵 ÁUDIO E INTERFACE:**
-• **Rádios:** Estações brasileiras (sertanejo, funk, rock nacional)
-• **HUD:** Interface moderna em português
-• **Sons:** Buzinas brasileiras, motores nacionais
-• **Dublagem:** Algumas missões em português
-
-**🌟 DIFERENCIAIS ÚNICOS:**
-• Experiência 100% nacional
-• Cultura brasileira autêntica
-• Gírias e expressões regionais
-• Sistemas realistas sem exageros
-• Balanceamento para diversão
-
-**📈 EM DESENVOLVIMENTO:**
-• Mais cidades brasileiras
-• Sistema relacionamentos
-• Profissões adicionais  
-• Multiplayer cooperativo local"""
-    else:
-        return """🎮 **Conteúdo Delux Modpack:**
-
-**🚗 Veículos:** Gol, Civic, Corolla, HB20, motos CG/XRE
-**🗺️ Mapas:** Favelas RJ, centro SP, praias BR
-**💼 Trabalhos:** Uber, entregador, segurança, construção  
-**💰 Economia:** Salários BR, banco funcional, IPVA
-**🏠 Casas:** Apartamentos até mansões
-**👥 NPCs:** Brasileiros, falam português
-
-**Total:** Experiência brasileira completa!"""
 
 if __name__ == '__main__':
     try:
-        debug_print("🚀 Iniciando DeluxAI Expandida - Versão Treinamento Completo")
+        debug_print("🚀 Iniciando DeluxAI Expandida - Versão 2.1 Corrigida")
         debug_print(f"📱 Modelo: {OLLAMA_MODEL} (815MB)")
         debug_print(f"🔧 CUDA: {'Ativo' if CUDA_AVAILABLE else 'Inativo'}")
+        debug_print(f"🔄 Auto-ping: {'Ativo' if AUTO_PING_ENABLED else 'Inativo'}")
+        if AUTO_PING_ENABLED:
+            debug_print(f"📡 URL Auto-ping: {AUTO_PING_URL}")
         debug_print(f"👨‍💻 Desenvolvedor: Natan Borges (@Ntzinnn87)")
         debug_print("🎮 Especialidade: Delux Modpack GTA V")
-        debug_print("🆕 Novidades: 15 categorias + 4 níveis complexidade")
-        debug_print("📚 Conhecimento: Base expandida completa")
-        debug_print("🤖 IA: Respostas contextuais inteligentes")
+        debug_print("📵 Compatibilidade: PC/Notebook apenas - NÃO mobile")
+        debug_print("🆕 Correções: Sintaxe + Auto-ping implementado")
         debug_print("=" * 70)
+        
+        # Inicia auto-ping se habilitado
+        iniciar_auto_ping()
         
         # Teste do Ollama
         if verificar_ollama():
@@ -1753,18 +1437,18 @@ if __name__ == '__main__':
         
         debug_print("🌐 Iniciando servidor Flask expandido...")
         debug_print("📡 Acesse: http://127.0.0.1:5001")
-        debug_print("🔍 Endpoints: /chat, /status, /categorias, /testar_categoria")
+        debug_print("🔍 Endpoints: /chat, /status, /ping")
         debug_print("🛑 Para parar: Ctrl+C")
         debug_print("-" * 70)
         
-        app.run(host='0.0.0.0', port=5001, debug=False, threaded=True)
+        # Configuração para produção (Render)
+        port = int(os.environ.get('PORT', 5001))
+        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
         
     except KeyboardInterrupt:
         debug_print("\n🛑 DeluxAI Expandida parada pelo usuário")
         debug_print("👋 Obrigada por usar a DeluxAI!")
     except Exception as e:
         debug_print(f"❌ Erro ao iniciar DeluxAI Expandida: {e}")
-        debug_print("💡 Verifique dependências: pip install flask flask-cors requests")
+        debug_print("💡 Verifique dependências: pip install flask flask-cors requests schedule")
         input("Pressione Enter para sair...")
-        }
-    })
