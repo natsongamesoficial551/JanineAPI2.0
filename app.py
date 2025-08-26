@@ -60,7 +60,7 @@ ELOGIOS_RESPOSTAS = [
     "Tmj! 🤝 O Delux é realmente incrível!"
 ]
 
-# Sistema de análise de intenção SUPER MELHORADO
+# Sistema de análise de intenção ULTRA MELHORADO
 def analisar_intencao(pergunta):
     """Analisa a intenção com MUITO mais variações e precisão"""
     p = pergunta.lower().strip()
@@ -81,10 +81,25 @@ def analisar_intencao(pergunta):
         "funcionamento": 0,
         "configuracao": 0,
         "doacao": 0,
+        "teste": 0,
+        "ajuda": 0,
         "geral": 0
     }
     
     # PALAVRAS-CHAVE MEGA EXPANDIDAS
+    
+    # Teste/Experimentar - NOVO baseado nas conversas
+    palavras_teste = [
+        "vou testar", "vou testar o modpack", "testar agora", "testar agr", "testando",
+        "vou experimentar", "vou ver", "vou dar uma olhada", "vou jogar", "vou provar"
+    ]
+    
+    # Ajuda/Suporte - NOVO baseado na conversa 3
+    palavras_ajuda = [
+        "no que você pode me ajudar", "no que vc pode me ajudar", "me ajuda", "ajuda ai",
+        "em que pode ajudar", "que ajuda oferece", "como pode ajudar", "ajudar com",
+        "preciso de ajuda", "me ajude", "pode me auxiliar", "o que sabe fazer"
+    ]
     
     # Instalação - todas variações possíveis
     palavras_instalacao = [
@@ -123,7 +138,7 @@ def analisar_intencao(pergunta):
         "site oficial", "gratuito", "free", "baixa"
     ]
     
-    # Opinião - MEGA variações  
+    # Opinião - MEGA variações incluindo "você é bom mesmo"
     palavras_opiniao = [
         "vale pena", "é bom", "recomenda", "opiniao", "review", "como fica",
         "mt bom", "muito bom", "modpack é bom", "esse modpack é bom",
@@ -131,12 +146,19 @@ def analisar_intencao(pergunta):
         "recomenda mesmo", "ta bom", "ficou bom", "qualidade"
     ]
     
-    # Desenvolvedor - TODAS variações do Natan
+    # Desenvolvedor - TODAS variações do Natan + contato quando há problema
     palavras_desenvolvedor = [
         "natan", "borges", "desenvolvedor", "criador", "quem fez", "autor",
         "programador", "ntzinnn", "portfolio", "quem é", "dono", "quem é natan",
         "quem criou", "quem desenvolveu", "quem programou", "natan borges",
         "criador do modpack", "quem fez isso", "quem fez esse mod"
+    ]
+    
+    # Contato - EXPANDIDO para incluir pedidos de contato por problemas
+    palavras_contato = [
+        "contato", "falar", "whatsapp", "email", "instagram", "discord", "suporte", "ajuda",
+        "me manda o contato", "contato do dono", "falar com ele", "contato do criador",
+        "contato do desenvolvedor", "como falo com", "preciso falar com", "contato natan"
     ]
     
     # Doação - NOVO
@@ -152,21 +174,17 @@ def analisar_intencao(pergunta):
         "melhor configuracao", "como configurar", "ajustar", "otimizar"
     ]
     
-    # Problema
+    # Problema - EXPANDIDO para incluir erro persistente
     palavras_problema = [
         "erro", "crash", "crashando", "problema", "nao funciona", "travando",
-        "bugou", "nao abre", "nao roda", "fps baixo", "lag", "bug", "reportar"
+        "bugou", "nao abre", "nao roda", "fps baixo", "lag", "bug", "reportar",
+        "erro persiste", "tentei de tudo", "nada funcionou", "não resolve"
     ]
     
     # Requisitos
     palavras_requisitos = [
         "requisitos", "specs", "meu pc", "roda", "compativel", "gtx", "ram",
         "processador", "pc fraco", "pc bom", "precisa de pc", "sistema", "windows"
-    ]
-    
-    # Contato
-    palavras_contato = [
-        "contato", "falar", "whatsapp", "email", "instagram", "discord", "suporte", "ajuda"
     ]
     
     # Saudação
@@ -181,13 +199,23 @@ def analisar_intencao(pergunta):
         "obrigado", "vlw", "valeu", "brigado", "foi bom falar"
     ]
     
-    # Elogio
+    # Elogio - EXPANDIDO incluindo "você é bom mesmo", "excelente", etc.
     palavras_elogio = [
         "legal", "top", "show", "incrivel", "otimo", "excelente", "perfeito",
-        "massa", "da hora", "maneiro", "bacana", "gostei", "curti", "parabens", "fantastico"
+        "massa", "da hora", "maneiro", "bacana", "gostei", "curti", "parabens", 
+        "fantastico", "você é bom", "vc é bom", "bom mesmo", "muito bom", "sensacional",
+        "achei o mod excelente", "mod excelente", "exelente", "execelente"
     ]
     
     # CONTAGEM COM PESOS AJUSTADOS
+    for palavra in palavras_teste:
+        if palavra in p:
+            intencoes["teste"] += 6
+    
+    for palavra in palavras_ajuda:
+        if palavra in p:
+            intencoes["ajuda"] += 5
+    
     for palavra in palavras_funcionamento:
         if palavra in p:
             intencoes["funcionamento"] += 5
@@ -203,6 +231,16 @@ def analisar_intencao(pergunta):
     for palavra in palavras_desenvolvedor:
         if palavra in p:
             intencoes["desenvolvedor"] += 5
+    
+    # Contato tem prioridade quando há problema
+    if any(prob in p for prob in ["erro persiste", "tentei de tudo", "nada funcionou"]):
+        for palavra in palavras_contato:
+            if palavra in p:
+                intencoes["contato"] += 7  # Peso maior
+    else:
+        for palavra in palavras_contato:
+            if palavra in p:
+                intencoes["contato"] += 3
     
     for palavra in palavras_doacao:
         if palavra in p:
@@ -232,10 +270,6 @@ def analisar_intencao(pergunta):
         if palavra in p:
             intencoes["requisitos"] += 3
     
-    for palavra in palavras_contato:
-        if palavra in p:
-            intencoes["contato"] += 2
-    
     for palavra in palavras_saudacao:
         if palavra in p:
             intencoes["saudacao"] += 4
@@ -254,11 +288,96 @@ def analisar_intencao(pergunta):
     
     return intencao_principal if score_principal > 1 else "geral"
 
-# Base de conhecimento CORRIGIDA E EXPANDIDA
+# Base de conhecimento CORRIGIDA
 def carregar_conhecimento_especializado():
     global KNOWLEDGE_BASE
     
     KNOWLEDGE_BASE = {
+        "teste": {
+            "resposta": """Opa! 🎮 Massa que vai testar o Delux Modpack!
+
+**🚀 DICAS PRO SEU TESTE:**
+
+**📋 ANTES DE ABRIR O JOGO:**
+- Certifica que instalou tudo certinho
+- GTA V original funcionando
+- Script Hook V instalado
+- Todas as 3 partes extraídas juntas
+
+**🎯 AO ABRIR PELA PRIMEIRA VEZ:**
+- Demora um pouco mais pra carregar
+- É normal, tem muito conteúdo novo!
+- Escolha "Story Mode"
+
+**⭐ PRIMEIRAS COISAS PRA TESTAR:**
+
+**💰 HUD MELHORADO:**
+- Repara na interface nova de vida/colete/dinheiro
+- Muito mais bonita e funcional!
+
+**💼 SISTEMA DE TRABALHOS:**
+- Procure ícones/blips no mapa 
+- Chegue perto e aperta **E** pra abrir menu
+- Teste: Taxista, Caminhoneiro, Paramédico
+
+**🏠 CASAS À VENDA:**
+- Procure placas "À VENDA" pela cidade
+- Aperta **E** pra ver detalhes
+- Compre com dinheiro do trabalho
+
+**🚗 CARROS REALISTAS:**
+- Sistema de combustível ativo
+- Abasteça nos postos quando precisar
+- Física mais realista
+
+**🎮 APROVEITA O TESTE:**
+- Explore todos os sistemas
+- É uma experiência completamente nova
+- RP realista no singleplayer
+
+**Depois me conta como foi! Tenho certeza que vai curtir demais!** 🔥 Tmj! 🤝""",
+            "keywords": ["vou testar", "testar", "testando", "vou experimentar", "vou jogar"]
+        },
+        
+        "ajuda": {
+            "resposta": """Opa! 🤝 **POSSO TE AJUDAR COM TUDO DO DELUX MODPACK:**
+
+**🎮 SOBRE O MODPACK:**
+- **Como funciona** - Explicação completa dos sistemas
+- **Instalação** - Tutorial passo a passo
+- **Gameplay** - Como jogar e usar tudo
+- **Requisitos** - Se seu PC roda
+
+**📥 DOWNLOADS:**
+- **Links oficiais** - Só lugares seguros  
+- **Links diretos** - MediaFire das 3 partes
+- **Site oficial** - deluxgtav.netlify.app
+
+**🛠️ PROBLEMAS TÉCNICOS:**
+- **Erros** - Resolução de bugs e crashes
+- **Configurações** - Otimizar performance
+- **Compatibilidade** - Verificar se roda no seu PC
+
+**👨‍💻 INFORMAÇÕES:**
+- **Sobre o Natan** - Desenvolvedor do modpack
+- **Contatos** - WhatsApp, email, Instagram
+- **Doações** - Como apoiar o projeto
+
+**💭 OPINIÕES:**
+- **Vale a pena?** - Minha opinião sincera
+- **É bom mesmo?** - Sim, é sensacional!
+- **Funciona?** - Perfeitamente!
+
+**🌟 CARACTERÍSTICAS:**
+- 100% Gratuito
+- RP realista completo
+- Comunidade brasileira
+- Suporte ativo
+
+**Me pergunta qualquer coisa específica!** 🎯 Estou aqui pra isso! 🔥""",
+            "keywords": ["no que pode me ajudar", "me ajuda", "ajuda", "como pode ajudar"]
+        },
+        
         "funcionamento": {
             "resposta": """Opa! 👋 **COMO FUNCIONA O DELUX MODPACK v Beta 1.0:**
 
@@ -270,7 +389,6 @@ O Delux Modpack transforma o **GTA V singleplayer** numa experiência de **rolep
 - **Adiciona mecânicas** de sobrevivência e economia
 - **Implementa economia** realista com trabalhos
 - **Modifica física** dos veículos para realismo
-- **Inclui mapas brasileiros** e sons nacionais
 - **Melhora HUD** com vida, colete e dinheiro aprimorados
 
 **⚙️ SISTEMAS PRINCIPAIS:**
@@ -288,14 +406,7 @@ O Delux Modpack transforma o **GTA V singleplayer** numa experiência de **rolep
 **🚗 VEÍCULOS REALISTAS:**
 - Sistema de combustível obrigatório
 - Danos mais realistas
-- Sons brasileiros nos carros
 - Física modificada para mais realismo
-
-**🇧🇷 TOQUE BRASILEIRO:**
-- Mapas de cidades brasileiras
-- Sons de carros nacionais
-- Lojas com nomes brasileiros
-- Comunidade 100% em português
 
 **📊 HUD MELHORADO:**
 - Interface de vida, colete e dinheiro aprimorada
@@ -434,14 +545,14 @@ https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)+V1+-+p
 
 **📊 HUD MELHORADO:**
 - Interface de **vida, colete e dinheiro** aprimorada
-- **TAB:** Verificar status detalhado
 - Visual mais realista e imersivo
 - Indicadores mais precisos
 
 **💼 TRABALHOS:**
-- **F6:** Menu de empregos
+- **Procure ícones/blips no mapa** 
+- **Chegue perto** do local de trabalho
+- **Aperte E** para abrir menu de trabalho
 - Disponíveis: **Taxista, Caminhoneiro, Paramédico**
-- Vá ao local indicado no mapa
 - Ganhe dinheiro realisticamente
 
 **🏠 CASAS E PROPRIEDADES:**
@@ -453,28 +564,17 @@ https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)+V1+-+p
 **🚗 CARROS REALISTAS:**
 - **Sistema de combustível** obrigatório
 - Abasteça em postos de gasolina
-- **Sons brasileiros** nos veículos
 - **Danos mais realistas**
 - **Física modificada** para mais realismo
 
-**🎯 CONTROLES ESPECIAIS:**
-- **TAB:** Status geral (vida, colete, dinheiro)
-- **F6:** Menu de trabalhos
-- **E:** Interações gerais
-- **M:** Mapa com locais importantes
-
-**🇧🇷 DIFERENCIAIS BRASILEIROS:**
-- **Mapas inspirados no Brasil**
-- **Sons de carros nacionais**
-- **Lojas com nomes brasileiros**
-- **Comunidade 100% português**
+**🎯 CONTROLES PRINCIPAIS:**
+- **E:** Interações gerais (trabalhos, casas, etc.)
 
 **💡 DICAS PRO:**
 1. **Comece arranjando um emprego** para ter dinheiro
 2. **Sempre abasteça** o carro quando precisar
 3. **Economize dinheiro** para casa própria
-4. **Explore os mapas brasileiros** inclusos
-5. **Faça RP realista** sempre!
+4. **Faça RP realista** sempre!
 
 **É uma experiência de vida virtual completa!** 🇧🇷 Bom RP! 🔥""",
             "keywords": ["jogar", "jogo", "como joga", "gameplay", "controles", "sistemas", "rp"]
@@ -513,11 +613,6 @@ https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)+V1+-+p
 - **Modo Jogador:** Ativado no Windows
 - **Atualize drivers** gráficos
 - **16GB RAM** recomendado (8GB mínimo)
-
-**🎯 CONFIGURAÇÕES ESPECÍFICAS MODPACK:**
-- **ReShade:** Pode deixar ativado (opcional)
-- **ENB:** Desative se tiver FPS baixo
-- **Distância LOD:** Máximo para melhor visual
 
 **⚠️ SE FPS BAIXAR:**
 1. **Diminua MSAA** primeiro
@@ -631,7 +726,7 @@ Com essas configurações você terá:
 4. **Reinstalar** tudo limpo
 
 **Me fala o erro específico que te ajudo melhor!** 🔧 Tmj! 🤝""",
-            "keywords": ["erro", "crash", "problema", "nao funciona", "travando", "fps baixo", "bugou", "bug"]
+            "keywords": ["erro", "crash", "problema", "nao funciona", "travando", "fps baixo", "bugou", "bug", "erro persiste", "tentei de tudo", "nada funcionou"]
         },
         
         "contato": {
@@ -659,7 +754,7 @@ Site: deluxgtav.netlify.app (seção Bugs)
 - Email: 24-48h resposta
 
 **Entre em contato sem medo! Natan sempre ajuda!** 🤝""",
-            "keywords": ["contato", "falar", "whatsapp", "email", "instagram", "suporte"]
+            "keywords": ["contato", "falar", "whatsapp", "email", "instagram", "suporte", "contato do dono", "me manda o contato"]
         },
         
         "desenvolvedor": {
@@ -751,13 +846,6 @@ Transforma **GTA V singleplayer** numa **vida virtual completa**! Você:
 - Compra casa própria com dinheiro ganho
 - Usa sistema de combustível realista
 - Vive roleplay 24/7 sem precisar de servidor
-- Aproveita mapas e sons brasileiros
-
-**🇧🇷 DIFERENCIAL BRASILEIRO:**
-- Sons brasileiros nos carros
-- Mapas inspirados no Brasil
-- Comunidade falando português
-- Suporte em português sempre
 
 **💯 VALE A PENA?**
 **SIM, DEMAIS!** É **obrigatório** para quem curte:
@@ -806,11 +894,11 @@ Especialista no **Delux Modpack v Beta 1.0** - o modpack brasileiro que transfor
         
         "elogio": {
             "resposta": random.choice(ELOGIOS_RESPOSTAS),
-            "keywords": ["legal", "top", "show", "incrivel", "massa", "da hora", "bom", "gostei"]
+            "keywords": ["legal", "top", "show", "incrivel", "massa", "da hora", "bom", "gostei", "excelente", "você é bom", "vc é bom", "mod excelente"]
         }
     }
     
-    print(f"✅ Base SUPER MELHORADA carregada: {len(KNOWLEDGE_BASE)} categorias")
+    print(f"✅ Base CORRIGIDA carregada: {len(KNOWLEDGE_BASE)} categorias")
 
 # Busca resposta especializada MELHORADA
 def buscar_resposta_especializada(pergunta):
@@ -837,11 +925,13 @@ def processar_ollama_focado(pergunta, intencao):
         return None
     
     try:
-        # Prompts específicos SUPER MELHORADOS
+        # Prompts específicos CORRIGIDOS
         prompts = {
+            "teste": "Responda positivamente para quem vai testar o modpack, dando dicas:",
+            "ajuda": "Liste todas as coisas que o DeluxAI pode ajudar sobre o Delux Modpack:",
             "funcionamento": "Explique detalhadamente como funciona o Delux Modpack, confirmando que SIM funciona perfeitamente:",
             "instalacao": "Explique detalhadamente como instalar o Delux Modpack passo a passo:",
-            "gameplay": "Ensine como jogar e usar todos os sistemas do Delux Modpack (sem fome/sede):",
+            "gameplay": "Ensine como jogar e usar todos os sistemas do Delux Modpack (CORRETO: sem TAB, sem F6, sem mapas brasileiros):",
             "configuracao": "Explique as melhores configurações para o Delux Modpack:",
             "problema": "Resolva este problema técnico do Delux Modpack:",
             "download": "Explique como baixar o Delux Modpack com segurança:",
@@ -859,7 +949,7 @@ def processar_ollama_focado(pergunta, intencao):
         
         prompt_base = prompts.get(intencao, prompts["geral"])
         
-        # Informações CORRIGIDAS dos MODS (SEM fome/sede)
+        # Informações CORRIGIDAS dos MODS
         mods_info = """
 MODS INCLUSOS NO DELUX MODPACK (CORRETO):
 - 01_Hud_Melhorado: Interface de vida/colete/dinheiro melhorada
@@ -886,7 +976,12 @@ MODS INCLUSOS NO DELUX MODPACK (CORRETO):
 - 31_Salvar_Veiculos: Garagem persistente
 - 32_Street_Races: Corridas de rua
 
-IMPORTANTE: NÃO TEM SISTEMA DE FOME/SEDE no modpack!
+CORREÇÕES IMPORTANTES:
+- NÃO tem TAB para menu (HUD já aparece na tela)
+- NÃO tem F6 para trabalhos (são ícones/blips no mapa, chega perto e aperta E)
+- NÃO tem mapas, sons ou lojas brasileiros
+- Trabalhos: chegar perto do blip/ícone no mapa e apertar E
+- Interações gerais: E (correto)
 """
         
         prompt = f"""Você é DeluxAI, criado por Natan Borges, especialista EXCLUSIVO no Delux Modpack v Beta 1.0 para GTA V.
@@ -910,19 +1005,13 @@ Part3: https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)
 
 {mods_info}
 
-CORREÇÕES IMPORTANTES PARA RESPOSTAS:
-1. "Como funciona/Funciona mesmo": SIM! Funciona perfeitamente! Explicar sistemas RP, economia, trabalhos
-2. "Precisa PC bom": NÃO! Roda em PCs medianos, GTX 1060+ é suficiente
-3. "Quem é Natan": Desenvolvedor brasileiro independente, criador do modpack, programador autodidata
-4. "É gratuito": SIM! 100% gratuito sempre
-5. "Como fica/É bom": SIM! É BOM DEMAIS! Transformação completa em RP realista, experiência incrível
-6. "Links": Fornecer links diretos do MediaFire quando pedido
-7. "Doação": Modpack é gratuito, mas pode entrar em contato com Natan para apoiar
-8. "Configurações": Dar dicas específicas de gráficos e otimização
-9. "Vale a pena": SIM! Melhor modpack RP brasileiro
-
-IMPORTANTE: NUNCA mencionar fome/sede - NÃO EXISTE no modpack!
-SEMPRE responda TUDO que souber sobre o assunto perguntado. Seja completo e detalhado.
+CORREÇÕES OBRIGATÓRIAS:
+1. NUNCA mencionar TAB para menu (HUD já aparece automaticamente)
+2. NUNCA mencionar F6 para trabalhos (são ícones/blips no mapa)
+3. NUNCA mencionar mapas, sons ou lojas brasileiros
+4. Trabalhos: "Procure ícones/blips no mapa, chegue perto e aperte E"
+5. Interações gerais: E (correto)
+6. Mapa: não mencionar tecla específica
 
 FOCO: {intencao.upper()}
 
@@ -996,7 +1085,7 @@ def limpar_resposta_focada(resposta):
     
     return resposta.strip()
 
-# Verificação SUPER MELHORADA - aceita MUITO mais variações
+# Verificação ULTRA MELHORADA - aceita MUITO mais variações
 def eh_pergunta_delux_focada(pergunta):
     p = pergunta.lower().strip()
     
@@ -1009,7 +1098,13 @@ def eh_pergunta_delux_focada(pergunta):
         if any(d in p for d in ["tchau", "bye", "flw", "falou", "ate", "obrigado", "vlw", "valeu", "foi bom", "brigado", "tmj"]):
             return True
         # Elogios simples
-        if any(e in p for e in ["legal", "top", "show", "massa", "bom", "boa", "otimo", "incrivel", "mt bom", "muito bom", "da hora", "maneiro", "bacana"]):
+        if any(e in p for e in ["legal", "top", "show", "massa", "bom", "boa", "otimo", "incrivel", "mt bom", "muito bom", "da hora", "maneiro", "bacana", "excelente", "você é bom", "vc é bom"]):
+            return True
+        # Teste/experimentar
+        if any(t in p for t in ["vou testar", "testar", "testando", "vou experimentar", "vou jogar"]):
+            return True
+        # Ajuda
+        if any(a in p for a in ["me ajuda", "ajuda", "pode ajudar", "no que pode", "como pode ajudar"]):
             return True
     
     # Keywords MEGA AMPLAS - aceita quase TUDO relacionado
@@ -1023,6 +1118,7 @@ def eh_pergunta_delux_focada(pergunta):
         
         # Problemas - MAIS OPÇÕES
         "erro", "crash", "problema", "bug", "nao funciona", "travando", "fps", "lag", "bugou",
+        "erro persiste", "tentei de tudo", "nada funcionou",
         
         # Sistema - EXPANDIDO
         "requisitos", "pc", "placa", "ram", "processador", "windows", "specs", "configurar", "roda",
@@ -1035,6 +1131,7 @@ def eh_pergunta_delux_focada(pergunta):
         # Pessoas e contato - EXPANDIDO
         "natan", "borges", "desenvolvedor", "criador", "contato", "whatsapp", "quem", "quem é",
         "email", "instagram", "suporte", "ajuda", "dono", "quem fez", "quem criou",
+        "contato do dono", "me manda o contato", "falar com ele",
         
         # Downloads - MAIS OPÇÕES
         "site", "oficial", "mediafire", "link", "gratuito", "free", "seguro", "links",
@@ -1043,10 +1140,17 @@ def eh_pergunta_delux_focada(pergunta):
         # Opiniões - MEGA EXPANDIDO
         "opiniao", "vale", "pena", "recomenda", "bom", "ruim", "review", "como fica",
         "é bom", "bom mesmo", "mt bom", "muito bom", "modpack é bom", "esse modpack é bom",
-        "ta bom", "ficou bom", "qualidade", "vale a pena", "recomenda mesmo",
+        "ta bom", "ficou bom", "qualidade", "vale a pena", "recomenda mesmo", "excelente",
+        "você é bom", "vc é bom", "mod excelente", "achei o mod excelente",
         
         # Doação - NOVO
         "doacao", "doar", "pix", "apoiar", "contribuir", "pagar", "dinheiro", "ajudar",
+        
+        # Teste - NOVO
+        "testar", "testando", "vou testar", "experimentar", "provar",
+        
+        # Ajuda - NOVO
+        "ajuda", "ajudar", "pode ajudar", "me ajuda", "no que pode", "como pode ajudar",
         
         # Palavras gerais - MAIS AMPLAS
         "como", "onde", "quando", "porque", "qual", "quem", "quanto", "melhor", "esse", "isso",
@@ -1065,7 +1169,7 @@ def eh_pergunta_delux_focada(pergunta):
         
     return False
 
-# Gerador principal MELHORADO
+# Gerador principal ULTRA MELHORADO
 def gerar_resposta_otimizada(pergunta):
     # Cache melhorado
     pergunta_hash = hashlib.md5(pergunta.lower().strip().encode()).hexdigest()
@@ -1091,9 +1195,13 @@ def gerar_resposta_otimizada(pergunta):
         print("✅ Resposta do Ollama focado")
         return resposta_ollama
     
-    # Resposta de fallback SUPER MELHORADAS
+    # Resposta de fallback ULTRA MELHORADAS
     fallbacks = {
-        "funcionamento": "Opa! 🎮 SIM, o Delux Modpack FUNCIONA PERFEITAMENTE! Transforma GTA V singleplayer numa experiência RP realista completa! Sistemas de trabalhos (Taxista/Caminhoneiro/Paramédico), casas para comprar, economia real, HUD melhorado. É como viver uma vida virtual no GTA! Site: deluxgtav.netlify.app 🔥",
+        "teste": "Opa! 🎮 Massa que vai testar o Delux Modpack! Dicas: demora mais pra carregar (normal), procure ícones no mapa pros trabalhos, aperte E pra interagir. É uma experiência incrível! Depois me conta como foi! 🔥",
+        
+        "ajuda": "Opa! 🤝 Posso te ajudar com TUDO do Delux Modpack: como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, gameplay, problemas, requisitos, configurações, contatos do Natan, opiniões. Me pergunta qualquer coisa! 🎮",
+        
+        "funcionamento": "Opa! 🎮 SIM, o Delux Modpack FUNCIONA PERFEITAMENTE! Transforma GTA V singleplayer numa experiência RP realista completa! Sistemas de trabalhos (chegar perto dos ícones no mapa e apertar E), casas para comprar, economia real, HUD melhorado. É como viver uma vida virtual no GTA! Site: deluxgtav.netlify.app 🔥",
         
         "instalacao": "Fala aí! 🎮 Para instalar: 1) Acesse deluxgtav.netlify.app 2) Baixe as 3 partes 3) Extraia juntas 4) Execute como admin. Precisa do GTA V original e Script Hook V! Tutorial completo no site! Tmj! 🤝",
         
@@ -1101,11 +1209,11 @@ def gerar_resposta_otimizada(pergunta):
         
         "download_links": "Opa! 🔗 LINKS DIRETOS: Part1: https://www.mediafire.com/file/h7qb14ns1rznvj6/Installer(Delux+Real+BETA)+V1+-+part1.rar/file | Part2: https://www.mediafire.com/file/90c82qkhqheqbkz/Installer(Delux+Real+BETA)+V1+-+part2.rar/file | Part3: https://www.mediafire.com/file/8rjhj6js44kqqu3/Installer(Delux+Real+BETA)+V1+-+part3.rar/file - Baixe todas na mesma pasta! 🔥",
         
-        "gameplay": "E aí! 🎮 No Delux você trabalha (F6), gerencia dinheiro/vida/colete no HUD melhorado, compra casas, abastece carros. É RP completo no singleplayer com sistemas brasileiros! Uma vida virtual realista! 🇧🇷",
+        "gameplay": "E aí! 🎮 No Delux você trabalha (procure ícones no mapa, chegue perto e aperte E), gerencia dinheiro/vida/colete no HUD melhorado, compra casas, abastece carros. É RP completo no singleplayer! Uma vida virtual realista! 🇧🇷",
         
         "configuracao": "Salve! ⚙️ Configurações recomendadas: Texturas Alta, Sombras Alta, FXAA ligado, MSAA desligado, Densidade 70-80%. Com GTX 1060+ roda liso em High! Tmj! 🎯",
         
-        "problema": "Opa! 🛠️ Para problemas: 1) Verificar integridade GTA V 2) Reinstalar Script Hook V 3) Executar como admin 4) Reportar bugs no site deluxgtav.netlify.app. Me fala o erro específico! 🔧",
+        "problema": "Opa! 🛠️ Para problemas: 1) Verificar integridade GTA V 2) Reinstalar Script Hook V 3) Executar como admin 4) Reportar bugs no site deluxgtav.netlify.app. Se o erro persiste, me manda o contato do Natan! 🔧",
         
         "requisitos": "Fala! 💻 RESPOSTA DIRETA: NÃO precisa PC muito bom! GTX 1060 + 16GB RAM + i5 já roda bem. Mínimo: GTX 1060/RX 580, 8GB RAM, Windows 10/11. Roda na maioria dos PCs! 🎯",
         
@@ -1117,7 +1225,7 @@ def gerar_resposta_otimizada(pergunta):
         
         "opiniao": "🔥 MINHA OPINIÃO: É SENSACIONAL! SIM, É BOM DEMAIS e FUNCIONA PERFEITAMENTE! Melhor modpack RP brasileiro, 100% gratuito, qualidade profissional. Transforma GTA V numa experiência completa de vida real. RECOMENDO 1000%! Vale muito a pena! 🎯",
         
-        "funcionamento": "Opa! 🎮 SIM, o Delux Modpack FUNCIONA PERFEITAMENTE! Transforma GTA V singleplayer numa experiência RP realista completa! Sistemas de trabalhos (Taxista/Caminhoneiro/Paramédico), casas para comprar, economia real, HUD melhorado. É como viver uma vida virtual no GTA! Site: deluxgtav.netlify.app 🔥",
+        "elogio": "Valeu! 😎 Fico feliz que curtiu! O Natan realmente caprichou no Delux Modpack. É sensacional mesmo! 🔥",
         
         "geral": "Opa! 👋 Sou DeluxAI, especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges! Modpack brasileiro de RP realista para GTA V. Site: deluxgtav.netlify.app 🎮"
     }
@@ -1141,29 +1249,29 @@ def verificar_ollama():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "online_super_melhorado",
-        "sistema": "DeluxAI SUPER MELHORADO v6.0 - Criado por Natan Borges",
+        "status": "online_v7_corrigido",
+        "sistema": "DeluxAI v7.0 CORRIGIDO - Criado por Natan Borges",
         "especialidade": "Delux Modpack v Beta 1.0",
         "modelo": OLLAMA_MODEL,
         "ollama_ativo": verificar_ollama(),
         "cache_size": len(CACHE_RESPOSTAS),
         "categorias": list(KNOWLEDGE_BASE.keys()) if KNOWLEDGE_BASE else [],
-        "melhorias_v6": [
-            "Detecção de intenção MEGA expandida com todas variações",
-            "Links diretos do MediaFire incluídos",
-            "Informações sobre doações adicionadas", 
-            "Resposta 'FUNCIONA MESMO': SIM, PERFEITAMENTE!",
-            "Resposta 'É BOM MESMO': SIM, É SENSACIONAL!",
-            "Variações do 'Quem é Natan' super expandidas",
-            "Correção: SEM fome/sede - apenas HUD melhorado",
-            "Fallbacks super melhorados por categoria",
-            "Filtro aceita muito mais variações de perguntas",
-            "Base corrigida com mods reais da imagem"
+        "correcoes_v7": [
+            "Adicionado 'teste' para 'vou testar o modpack'",
+            "Adicionado 'ajuda' para 'no que você pode me ajudar'", 
+            "Elogios agora incluem 'excelente', 'você é bom'",
+            "Contato priorizado quando há erro persistente",
+            "CORRIGIDO: Sem TAB para menu (HUD já aparece)",
+            "CORRIGIDO: Sem F6 para trabalhos (ícones no mapa + E)",
+            "CORRIGIDO: Sem mapas, sons ou lojas brasileiros",
+            "CORRIGIDO: Gameplay com interações corretas",
+            "Treinamento baseado nas 6 conversas fornecidas",
+            "Detecção melhorada para variações de perguntas"
         ]
     })
 
 @app.route('/chat', methods=['POST'])
-def chat_super_melhorado():
+def chat_v7_corrigido():
     try:
         data = request.get_json()
         
@@ -1176,28 +1284,28 @@ def chat_super_melhorado():
         
         print(f"💬 [{datetime.now().strftime('%H:%M:%S')}] Pergunta: {pergunta}")
         
-        # Filtro SUPER MELHORADO - aceita MUITO mais relacionado
+        # Filtro ULTRA MELHORADO - aceita MUITO mais relacionado
         if not eh_pergunta_delux_focada(pergunta):
             resposta_filtro = "Opa! 🎮 Sou o DeluxAI, especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges. Posso ajudar com TUDO sobre o modpack: como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, problemas, requisitos, gameplay RP, configurações, contatos, doações, opiniões. Site oficial: deluxgtav.netlify.app - Pergunta qualquer coisa! 🤝"
             return jsonify({
                 "response": resposta_filtro,
                 "metadata": {
-                    "fonte": "filtro_super_melhorado", 
+                    "fonte": "filtro_v7_corrigido", 
                     "tipo": "redirecionamento_completo"
                 }
             })
         
-        # Gera resposta SUPER MELHORADA
+        # Gera resposta CORRIGIDA
         resposta = gerar_resposta_otimizada(pergunta)
         
         # Determina fonte mais precisa
         intencao = analisar_intencao(pergunta)
         if intencao in KNOWLEDGE_BASE:
-            fonte = f"base_super_melhorada_{intencao}"
+            fonte = f"base_corrigida_{intencao}"
         elif verificar_ollama():
-            fonte = f"ollama_melhorado_{intencao}"
+            fonte = f"ollama_corrigido_{intencao}"
         else:
-            fonte = f"fallback_melhorado_{intencao}"
+            fonte = f"fallback_corrigido_{intencao}"
         
         return jsonify({
             "response": resposta,
@@ -1205,16 +1313,16 @@ def chat_super_melhorado():
                 "fonte": fonte,
                 "intencao": intencao,
                 "modelo": OLLAMA_MODEL,
-                "sistema": "DeluxAI_v6_Super_Melhorado",
+                "sistema": "DeluxAI_v7_Corrigido",
                 "site_oficial": "deluxgtav.netlify.app",
-                "links_diretos_incluidos": True
+                "correcoes_aplicadas": True
             }
         })
         
     except Exception as e:
         print(f"❌ Erro: {e}")
         return jsonify({
-            "response": "Eae! 😅 Deu um probleminha aqui, mas já volto! Me pergunta sobre como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, gameplay, problemas, contatos, doações ou qualquer coisa do Delux Modpack! Site: deluxgtav.netlify.app 🔧",
+            "response": "Eae! 😅 Deu um probleminha aqui, mas já volto! Me pergunta sobre como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, gameplay (sem TAB, sem F6), problemas, contatos, doações ou qualquer coisa do Delux Modpack! Site: deluxgtav.netlify.app 🔧",
             "error": "erro_temporario"
         }), 500
 
@@ -1223,11 +1331,11 @@ def ping():
     return jsonify({
         "status": "pong",
         "timestamp": datetime.now().isoformat(),
-        "sistema": "DeluxAI v6.0 - SUPER MELHORADO - Auto-Ping Ativo"
+        "sistema": "DeluxAI v7.0 CORRIGIDO - Auto-Ping Ativo"
     })
 
 if __name__ == '__main__':
-    print("🎮 Iniciando DeluxAI SUPER MELHORADO v6.0")
+    print("🎮 Iniciando DeluxAI v7.0 CORRIGIDO")
     print("=" * 80)
     print("👨‍💻 Criado por: Natan Borges")  
     print("📧 Contato: borgesnatan09@gmail.com")
@@ -1237,26 +1345,26 @@ if __name__ == '__main__':
     print("💼 Portfólio: meuportfolio02.netlify.app")
     print("=" * 80)
     
-    # Carrega base SUPER MELHORADA
+    # Carrega base CORRIGIDA
     carregar_conhecimento_especializado()
     
     # Status
     if verificar_ollama():
-        print("✅ Ollama CONECTADO - Modo Híbrido Super Melhorado")
+        print("✅ Ollama CONECTADO - Modo Híbrido Corrigido")
     else:
-        print("⚠️ Ollama offline - Modo Base Super Melhorada")
+        print("⚠️ Ollama offline - Modo Base Corrigida")
     
-    print("🔧 SUPER MELHORIAS APLICADAS:")
-    print("   - Detecção 'funciona mesmo/isso funciona': SIM, PERFEITAMENTE!")
-    print("   - Links diretos MediaFire incluídos nas respostas")
-    print("   - 'Quem é Natan' com TODAS variações possíveis")
-    print("   - Informações sobre doações adicionadas")
-    print("   - 'É bom mesmo/vale a pena': SIM, É SENSACIONAL!")
-    print("   - Correção: SEM fome/sede (apenas HUD melhorado)")
-    print("   - Filtro aceita muito mais variações de perguntas")
-    print("   - Fallbacks contextuais super detalhados")
-    print("   - Base com mods corretos da imagem")
-    print("   - Análise de intenção mega expandida")
+    print("🔧 CORREÇÕES v7.0 APLICADAS:")
+    print("   ✅ 'vou testar o modpack' → resposta especializada")
+    print("   ✅ 'no que você pode me ajudar' → lista completa")
+    print("   ✅ 'achei o mod excelente' → elogio reconhecido")
+    print("   ✅ 'você é bom mesmo' → elogio reconhecido")
+    print("   ✅ 'erro persiste + contato' → contato priorizado")
+    print("   🚫 REMOVIDO: TAB para menu (HUD já aparece)")
+    print("   🚫 REMOVIDO: F6 para trabalhos")
+    print("   🚫 REMOVIDO: mapas, sons, lojas brasileiros")
+    print("   ✅ CORRIGIDO: trabalhos = ícones no mapa + E")
+    print("   ✅ Treinamento baseado nas 6 conversas")
     print("🔄 Auto-ping ativo (5min)")
     print("🚀 Servidor iniciando na porta 5001...")
     print("=" * 80)
