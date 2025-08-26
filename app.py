@@ -6,7 +6,9 @@ import hashlib
 import random
 import re
 import json
-from flask import Flask, request, jsonify
+import threading
+from datetime import datetime, timedelta
+from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 
 warnings.filterwarnings('ignore')
@@ -17,569 +19,541 @@ CORS(app)
 # Configuração
 OLLAMA_BASE_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = "gemma3:1b"
+RENDER_URL = os.getenv("RENDER_URL", "")  # URL do seu app no Render
 
-# Cache e dados
+# Cache e dados melhorados
 CACHE_RESPOSTAS = {}
 KNOWLEDGE_BASE = []
+HISTORICO_CONVERSAS = []
+PING_INTERVAL = 300  # 5 minutos
 
-# Listas de personalidade
+# Auto-ping para manter servidor ativo
+def auto_ping():
+    while True:
+        try:
+            if RENDER_URL:
+                requests.get(f"{RENDER_URL}/health", timeout=10)
+                print(f"🏓 Auto-ping realizado: {datetime.now().strftime('%H:%M:%S')}")
+        except Exception as e:
+            print(f"❌ Erro no auto-ping: {e}")
+        time.sleep(PING_INTERVAL)
+
+# Inicia thread de auto-ping
+threading.Thread(target=auto_ping, daemon=True).start()
+
+# Personalidade melhorada
 SAUDACOES = [
     "Fala aí! 🎮", "E aí, mano! 🚗", "Salve! 🔥", "Opa! 👋", 
-    "Eae! 💪", "Oi! 😎", "Fala, parceiro! 🤝", "E aí, gamer! 🎯"
+    "Eae! 💪", "Oi! 😎", "Fala, parceiro! 🤝", "E aí, gamer! 🎯",
+    "Beleza aí! 🎊", "Suave! 😄", "Coé! 💯"
 ]
 
 DESPEDIDAS = [
     "Tmj! 🤝", "Falou! 👋", "Até mais! ✌️", "Bom jogo! 🎮", 
-    "Se cuida! 😎", "Tchauzinho! 👋", "Abraço! 🫶"
+    "Se cuida! 😎", "Tchauzinho! 👋", "Abraço! 🫶",
+    "Partiu RP! 🔥", "Vida loka! 😂", "Vai na fé! 🙏"
 ]
 
-ELOGIOS_IA = [
-    "Obrigado! Meu criador Natan ficaria orgulhoso! 😊",
-    "Valeu! O Natan me programou bem, né? 😄",
-    "Thanks! Natan caprichou no meu código! 🔥",
-    "Que isso! Mérito do Natan que me criou! 💯"
+TRANSICOES = [
+    "Mas olha só,", "Ah, e mais uma coisa:", "Aliás,", "Por sinal,",
+    "Ah! Importante:", "E pra fechar:", "Só lembrando:"
 ]
 
-# Base de conhecimento CORRIGIDA
-def carregar_conhecimento():
+# Sistema de inteligência aprimorado
+def analisar_contexto_conversa(pergunta):
+    """Analisa o contexto da conversa para respostas mais inteligentes"""
+    p = pergunta.lower()
+    
+    contexto = {
+        "tipo_pergunta": "geral",
+        "urgencia": "normal",
+        "especificidade": "geral",
+        "tom": "neutro"
+    }
+    
+    # Detecta tipo de pergunta
+    if any(palavra in p for palavra in ["como", "tutorial", "passo a passo", "me ensina"]):
+        contexto["tipo_pergunta"] = "tutorial"
+    elif any(palavra in p for palavra in ["erro", "problema", "crash", "não funciona", "bugou"]):
+        contexto["tipo_pergunta"] = "suporte"
+        contexto["urgencia"] = "alta"
+    elif any(palavra in p for palavra in ["vale a pena", "é bom", "recomenda", "opiniao"]):
+        contexto["tipo_pergunta"] = "opiniao"
+    elif any(palavra in p for palavra in ["requisitos", "roda", "meu pc", "specs"]):
+        contexto["tipo_pergunta"] = "compatibilidade"
+    
+    # Detecta tom
+    if any(palavra in p for palavra in ["obrigado", "valeu", "top", "massa", "legal"]):
+        contexto["tom"] = "positivo"
+    elif any(palavra in p for palavra in ["chato", "ruim", "não gostei", "problema"]):
+        contexto["tom"] = "negativo"
+    
+    return contexto
+
+# Base de conhecimento super detalhada
+def carregar_conhecimento_avancado():
     global KNOWLEDGE_BASE
     
     KNOWLEDGE_BASE = [
-        # === INSTALAÇÃO DETALHADA ===
+        # SISTEMA DE FOME E SEDE
+        {
+            "keywords": ["fome", "sede", "comer", "beber", "necessidades", "barras", "status"],
+            "resposta": """Eae! 💪 Sistema de FOME E SEDE do Delux Modpack v Beta 1.0:
+
+**COMO FUNCIONA:**
+🍔 **Fome:** Diminui gradualmente enquanto joga
+🥤 **Sede:** Diminui mais rápido que a fome
+📊 **Barras:** Aparecem na interface do jogo
+⚠️ **Consequências:** Personagem fica fraco se ignorar
+
+**ONDE SACIAR:**
+🍕 **Restaurantes:** Cluckin' Bell, Burger Shot
+🥤 **Lojas:** 24/7, LTD Gasoline
+🏪 **Máquinas:** Vending machines espalhadas
+🏠 **Casas:** Se tiver propriedade
+
+**CONTROLES:**
+- **TAB:** Ver status das necessidades
+- **E:** Interagir com comércios
+- **Aproxime-se** dos locais e aparecem opções
+
+**DICAS REALISTAS:**
+- Sempre tenha dinheiro pra comida
+- Planeje rotas perto de comércios  
+- Sede mata mais rápido que fome
+- RP completo = coma regularmente
+
+É tipo Sims dentro do GTA! 🎮 Realismo total! Bom RP! 🔥"""
+        },
+
+        # SISTEMA DE TRABALHOS DETALHADO  
+        {
+            "keywords": ["trabalho", "emprego", "trabalhar", "job", "dinheiro", "salario", "carreira", "profissao"],
+            "resposta": """Salve! 🔥 TRABALHOS DISPONÍVEIS no Delux Modpack v Beta 1.0:
+
+**EMPREGOS INCLUSOS:**
+🚛 **Caminhoneiro:** Entrega de cargas
+🚗 **Taxista:** Transporte de passageiros  
+🚑 **Paramédico:** Socorro emergencial
+🚔 **Segurança:** Vigilância noturna
+🏪 **Comerciante:** Gerenciar lojas
+⛽ **Frentista:** Posto de gasolina
+🏗️ **Construção:** Obras pela cidade
+
+**COMO CONSEGUIR TRABALHO:**
+1. **Menu F6** - Lista de empregos
+2. **Vá até o local** indicado no mapa
+3. **Interaja** com o NPC responsável
+4. **Aceite** a vaga disponível
+5. **Complete** as tarefas
+
+**SISTEMA DE SALÁRIO:**
+💵 **Pagamento:** Por tarefa concluída
+📈 **Promoção:** Performance melhora salário
+⏰ **Horários:** Alguns jobs têm turnos
+💼 **Experiência:** Ganha XP na profissão
+
+**DICAS PRO:**
+- Comece com taxi/caminhão (mais fácil)
+- Tenha combustível sempre
+- Cumpra horários pra não ser demitido
+- Dinheiro = sobrevivência realista
+
+Sair da vida de crime nunca foi tão real! 😂 Partiu trabalhar! 💼"""
+        },
+
+        # SISTEMA DE CASAS
+        {
+            "keywords": ["casa", "propriedade", "comprar casa", "morar", "apartamento", "imovel"],
+            "resposta": """Opa! 👋 SISTEMA DE CASAS do Delux Modpack v Beta 1.0:
+
+**PROPRIEDADES DISPONÍVEIS:**
+🏠 **Casas:** Diferentes bairros e preços
+🏢 **Apartamentos:** Centro da cidade
+🏚️ **Casas simples:** Mais baratas
+🏖️ **Mansões:** Para os ricos do RP
+
+**COMO COMPRAR:**
+1. **Procure placas** "À VENDA" na cidade
+2. **Aproxime-se** da entrada
+3. **Pressione E** para ver detalhes
+4. **Tenha dinheiro** suficiente
+5. **Confirme** a compra
+
+**BENEFÍCIOS DE TER CASA:**
+🛏️ **Descanso:** Recupera energia
+🍽️ **Cozinha:** Saciar fome/sede
+🚗 **Garagem:** Guardar veículos
+💰 **Investimento:** Valor pode subir
+🏠 **Spawn:** Nascer em casa própria
+
+**CUSTOS REALISTAS:**
+- **Compra:** Varia por localização
+- **IPTU:** Pagamento mensal
+- **Manutenção:** Cuidar da propriedade
+- **Contas:** Água, luz (se habilitado)
+
+**LOCALIZAÇÃO IMPORTA:**
+- Centro = caro mas conveniente
+- Periferia = barato mas longe
+- Praia = caro e exclusivo
+
+O sonho da casa própria no GTA! 🏠 Bom investimento! 💰"""
+        },
+
+        # INSTALAÇÃO SUPER DETALHADA
         {
             "keywords": ["instalar", "instalacao", "install", "como instalar", "passo a passo", "tutorial"],
-            "resposta": """Fala aí! 🎮 Tutorial COMPLETO instalação Delux Modpack v Beta 1.0:
+            "resposta": """Fala aí! 🎮 INSTALAÇÃO COMPLETA Delux Modpack v Beta 1.0:
 
-**PRÉ-REQUISITOS:**
-1. **GTA V original** Steam/Epic/Rockstar atualizado
-2. **Backup saves** em Documents/Rockstar Games/GTA V
-3. **8GB RAM mínimo** (16GB recomendado)
-4. **20GB livres** no disco
-5. **Script Hook V instalado**
-6. **OpenIV instalado**
+**ANTES DE COMEÇAR:**
+1. **BACKUP** - Salve seus saves do GTA V
+2. **ESPAÇO** - 20GB livres no HD/SSD
+3. **ANTIVÍRUS OFF** - Desative temporariamente
+4. **PACIÊNCIA** - Instalação demora 15-30min
 
-**INSTALAÇÃO PASSO A PASSO:**
+**PRÉ-REQUISITOS OBRIGATÓRIOS:**
+✅ **GTA V Original** - Steam/Epic/Rockstar atualizado
+✅ **Script Hook V** - Versão mais recente
+✅ **OpenIV** - Instalado e configurado
+✅ **Visual C++** - 2015-2022 Redistributable
+✅ **.NET Framework** - 4.8 ou superior
+
+**PASSO A PASSO DETALHADO:**
 1. **Site oficial:** deluxgtav.netlify.app
-2. **Baixe as 3 partes** do MediaFire
-3. **Extraia TODAS** na mesma pasta
-4. **Feche GTA V** completamente
-5. **Execute installer como ADMINISTRADOR**
-6. **Selecione pasta GTA V** (geralmente C:/Program Files/Steam/steamapps/common/Grand Theft Auto V)
-7. **Aguarde instalação** (10-30min dependendo do PC)
-8. **Reinicie PC** se solicitado
-9. **Abra GTA V normalmente**
+2. **Download das 3 partes** (MediaFire apenas!)
+3. **Extrair TUDO** na mesma pasta
+4. **FECHAR** GTA V completamente
+5. **Executar installer** como ADMINISTRADOR
+6. **Selecionar pasta** do GTA V
+7. **Aguardar instalação** (não interromper!)
+8. **Reiniciar PC** quando solicitado
+9. **Testar** abrindo GTA V
 
-**VERIFICAÇÃO:**
-- Se abriu = sucesso! 
-- Se crashou = veja soluções de problemas
+**LOCAIS COMUNS GTA V:**
+- Steam: C:/Program Files/Steam/steamapps/common/GTA V
+- Epic: C:/Program Files/Epic Games/GTAV
+- Rockstar: C:/Program Files/Rockstar Games/GTA V
 
-GTA V sem mods é como pizza sem queijo! 🍕 Tmj! 🤝"""
+**SE CRASHAR:**
+- Verificar integridade arquivos
+- Reinstalar Script Hook V
+- Executar sempre como admin
+- Desativar antivírus
+
+Instalação perfeita = RP perfeito! 🔥 Bora pro Los Santos brasileiro! 🇧🇷"""
         },
-        
-        # === O QUE É O MODPACK ===
+
+        # OPINIÃO SOBRE O MODPACK
         {
-            "keywords": ["o que é", "que é delux", "sobre delux", "explica delux", "modpack"],
-            "resposta": """E aí, mano! 🚗 Te explico tudo sobre o Delux Modpack v Beta 1.0:
+            "keywords": ["vale a pena", "é bom", "recomenda", "opiniao", "review", "como é", "experiencia"],
+            "resposta": """E aí, mano! 🚗 MINHA OPINIÃO REAL sobre o Delux Modpack v Beta 1.0:
 
-**O QUE É:**
-O Delux Modpack é um modpack brasileiro para GTA V que transforma o singleplayer numa experiência realista tipo RP! Criado pelo Natan Borges.
+**PONTOS POSITIVOS:**
+✅ **Realismo INSANO** - Parece vida real
+✅ **Gratuito** - Natan é gente boa mesmo
+✅ **Brasileiro** - Feito pensando na galera BR
+✅ **Sempre atualizando** - Bugs são corrigidos
+✅ **ReShade incluído** - Visual cinematográfico
+✅ **Fácil instalar** - Tutorial claro
 
-**CONTEÚDO INCLUÍDO:**
-🚗 **Carros brasileiros e importados**
-🏍️ **Motos nacionais**
-🏠 **Mapas realistas**
-👤 **Skins e roupas BR**
-🎮 **Scripts de realismo** (fome, sede, trabalhos)
-🌟 **ReShade otimizado** (gráficos incríveis)
+**EXPERIÊNCIA REAL:**
+🎭 **RP Completo** - Fome, sede, trabalho
+🚗 **Carros realistas** - Física brasileira
+🏠 **Mapas novos** - Locais familiares
+💼 **Economia balanceada** - Dinheiro tem valor
+🎮 **Singleplayer viciante** - Adeus GTA Online
 
-**DIFERENCIAIS:**
-- Experiência de RP no singleplayer
-- Mecânicas realistas e imersivas
-- Totalmente em português
-- Fácil instalação
-- 100% gratuito
-- Atualizações constantes
+**VALE A PENA SE:**
+- Curte roleplay realista
+- Quer GTA mais imersivo  
+- Gosta de desafio
+- Tem paciência pra RP
+- PC roda tranquilo
 
-**COMPATIBILIDADE:**
-- GTA V Steam/Epic/Rockstar
-- Windows 10/11
-- Single player APENAS
+**NÃO VALE SE:**
+- Só quer ação/tiro
+- PC muito fraco
+- Não gosta de realismo
+- Prefere online
 
-É tipo transformar o GTA V numa vida real brasileira! 🇧🇷 Falou! 👋"""
+**VEREDICTO FINAL:**
+⭐⭐⭐⭐⭐ **5/5 ESTRELAS!**
+
+É o melhor modpack BR que já testei! Natan caprichou demais. Transform GTA numa vida virtual completa. 
+
+Só baixa e agradece depois! 😎 Realismo brasileiro raiz! 🇧🇷"""
         },
-        
-        # === DOWNLOADS CORRIGIDOS ===
+
+        # PROBLEMAS ESPECÍFICOS POR HARDWARE
         {
-            "keywords": ["download", "baixar", "onde baixar", "links", "mediafire", "parte 1", "parte 2", "parte 3"],
-            "resposta": """Salve! 🔥 Guia COMPLETO de downloads Delux Modpack v Beta 1.0:
+            "keywords": ["gtx 1050", "gtx 1050 ti", "pc fraco", "não roda", "fps baixo", "travando"],
+            "resposta": """Fala, parceiro! 🤝 SITUAÇÃO REAL com GTX 1050/1050 Ti:
+
+**GTX 1050 Ti - ANÁLISE:**
+⚠️ **VRAM:** 4GB (limitado mas possível)
+⚠️ **Performance:** 30-45fps médio
+⚠️ **Configuração:** Precisa ajustar tudo
+
+**PODE RODAR SE:**
+✅ **i5 ou Ryzen 5** no mínimo
+✅ **16GB RAM** (8GB sofre)
+✅ **SSD** obrigatório
+✅ **ReShade OFF** inicialmente
+✅ **Configs LOW/MEDIUM**
+
+**CONFIGURAÇÃO PARA GTX 1050 Ti:**
+📊 **Texturas:** Normal
+📊 **Sombras:** Baixa
+📊 **Reflexos:** Baixa  
+📊 **MSAA:** OFF (use FXAA)
+📊 **PostFX:** Normal
+📊 **Distância:** 50%
+
+**TWEAKS OBRIGATÓRIOS:**
+- Feche Chrome/Discord
+- Modo alto desempenho Windows
+- Desative transparências
+- Limite FPS em 30
+- ReShade só depois de estável
+
+**EXPECTATIVA REALISTA:**
+- 720p/1080p low: 35-50fps
+- Alguns travamentos normais
+- Loading mais lento
+- RP possível mas limitado
+
+**SINCERAMENTE:**
+Roda sim, mas não é a melhor experiência. Pra RP completo, recomendo pelo menos GTX 1060. Mas se é o que tem, vai na fé! 
+
+Otimização salvará sua experiência! 💪 Bom game! 🎮"""
+        },
+
+        # DOWNLOAD E INSTALAÇÃO DETALHADOS
+        {
+            "keywords": ["download", "baixar", "onde baixar", "links", "mediafire", "partes", "arquivo"],
+            "resposta": """Salve! 🔥 DOWNLOADS OFICIAIS Delux Modpack v Beta 1.0:
 
 **SITE OFICIAL ÚNICO:**
-🌐 deluxgtav.netlify.app
+🌐 **deluxgtav.netlify.app**
+⚠️ **CUIDADO:** Outros sites = VÍRUS garantido!
 
-**DOWNLOADS OBRIGATÓRIOS (MediaFire):**
+**ARQUIVOS OBRIGATÓRIOS:**
 📁 **Parte 1:** Installer(Delux Real BETA) V1 - part1.rar
-📁 **Parte 2:** Installer(Delux Real BETA) V1 - part2.rar
+📁 **Parte 2:** Installer(Delux Real BETA) V1 - part2.rar  
 📁 **Parte 3:** Installer(Delux Real BETA) V1 - part3.rar
 
-**LINKS ATIVOS:**
-- Acesse deluxgtav.netlify.app
-- Clique nos links do MediaFire
-- Baixe as 3 partes
-
-**INSTRUÇÕES DOWNLOAD:**
-1. **Acesse APENAS** o site oficial
-2. **Clique nos links MediaFire**
-3. **Aguarde 5 segundos** no MediaFire
+**PROCESSO DE DOWNLOAD:**
+1. **Acesse** deluxgtav.netlify.app
+2. **Clique** nos links MediaFire
+3. **Aguarde** 5 segundos no MediaFire
 4. **Clique "Download"**
 5. **Baixe AS 3 PARTES** na mesma pasta
-6. **NÃO extraia ainda!**
+6. **VERIFIQUE** se baixou tudo
+7. **NÃO EXTRAIA** ainda!
 
-**⚠️ AVISOS IMPORTANTES:**
-- NUNCA baixe de outros sites = VÍRUS garantido!
-- Precisa das 3 partes para instalar
-- Use apenas MediaFire oficial
-- Desative antivírus antes de baixar
+**CHECKLIST PÓS-DOWNLOAD:**
+✅ Parte 1 baixada completa
+✅ Parte 2 baixada completa
+✅ Parte 3 baixada completa
+✅ Todos na mesma pasta
+✅ Antivírus desativado
+✅ Espaço suficiente (20GB)
+
+**TAMANHOS APROXIMADOS:**
+- Total: ~15GB compactado
+- Após instalar: ~20GB
+- Tempo download: 30min-2h (net)
 
 **PROBLEMAS COMUNS:**
-- Link não abre = limpe cache navegador
-- Download lento = use VPN se necessário
-- Arquivo corrompido = baixe novamente
+❌ **Link não abre:** Limpe cache navegador
+❌ **Download interrompido:** Use gerenciador download
+❌ **Arquivo corrompido:** Baixe novamente
+❌ **MediaFire lento:** Use VPN se necessário
 
-Hora de causar no single! 😏 Bom jogo! 🎮"""
+**SEGURANÇA:**
+- NUNCA baixe de outros sites
+- Natan só publica em deluxgtav.netlify.app
+- Links oficiais sempre MediaFire
+
+Paciência no download = jogo perfeito! 📥 Hora de causar! 🎮"""
         },
-        
-        # === PROBLEMAS E CRASHES DETALHADOS ===
+
+        # CONTATO E SUPORTE HUMANIZADO
         {
-            "keywords": ["erro", "crash", "nao funciona", "nao abre", "problema", "travando", "bug", "falha", "nao inicia"],
-            "resposta": """E aí, gamer! 🎯 Soluções COMPLETAS para crashes Delux Modpack v Beta 1.0:
+            "keywords": ["contato", "suporte", "natan", "criador", "ajuda", "discord", "whatsapp"],
+            "resposta": """Salve! 🔥 CONTATO DIRETO com NATAN BORGES:
 
-**CRASHES MAIS COMUNS:**
+**👨‍💻 CRIADOR: Natan Borges**
+Desenvolvedor independente brasileiro, apaixonado por GTA V e modding. Criou o Delux pra galera ter RP de qualidade no singleplayer!
 
-🔴 **Não abre/Tela preta:**
-1. Execute GTA V como ADMINISTRADOR
-2. Execute Launcher como ADMIN também
-3. Desative antivírus TOTALMENTE
-4. Atualize Visual C++ 2015-2022
-5. Atualize .NET Framework 4.8
-6. Verifique se Script Hook V está instalado
+**CANAIS OFICIAIS:**
+📧 **Email:** borgesnatan09@gmail.com
+📱 **WhatsApp:** +55 21 99282-6074
+📸 **Instagram:** @Ntzinnn87 (novidades!)
+🌐 **Site:** deluxgtav.netlify.app
+💼 **Portfólio:** meuportfolio02.netlify.app
 
-🔴 **Crash ao carregar:**
-1. Verifique integridade GTA V no launcher
-2. Reinstale o modpack
-3. Confirme 3 partes extraídas
-4. Delete pasta mods antiga
-5. Instale OpenIV atualizado
+**DISCORD COMUNIDADE:**
+🎮 Servidor no Discord (link no site)
+- Chat geral
+- Suporte técnico
+- Screenshots/vídeos
+- Atualizações
 
-🔴 **Crash durante jogo:**
-1. Baixe configurações gráficas
-2. Desative VSync
-3. Limite FPS em 60
-4. Feche programas desnecessários
-5. Monitore temperatura
+**COMO PEDIR AJUDA:**
+1. **Descreva o problema** detalhadamente
+2. **Specs do PC** (importante!)
+3. **Screenshot** do erro (se houver)
+4. **Versão Windows** que usa
+5. **Launcher** (Steam/Epic/Rockstar)
 
-🔴 **Erro "Script Hook V":**
-1. Baixe ScriptHookV mais recente
-2. Cole na pasta raiz GTA V
-3. Reinicie PC
+**NATAN RESPONDE:**
+- WhatsApp: Emergências/problemas graves
+- Instagram: Novidades e interação
+- Email: Suporte técnico completo
+- Discord: Comunidade ativa
 
-🔴 **ReShade não funciona:**
-1. Reinstale ReShade
-2. Selecione DirectX 11
-3. Configure preset correto
+**DICA PRO:**
+Natan é gente boa mas fica bombado de mensagem. Seja específico no problema pra ele te ajudar melhor!
 
-**SOLUÇÃO RADICAL:**
-1. Desinstale modpack
-2. Verifique integridade GTA V
-3. Reinstale Script Hook V e OpenIV
-4. Reinstale modpack limpo
+**FILOSOFIA DO NATAN:**
+"Quero que todo mundo consiga jogar e se divertir com o modpack. Foi feito com amor pra comunidade brasileira!"
 
-Sem essa de rage quit, vamos resolver! 😂 Se cuida! 😎"""
+Suporte raiz direto do criador! 🇧🇷 Natan é o cara! 💯"""
         },
-        
-        # === CONFIGURAÇÕES COM RESHADE ===
+
+        # DIFERENÇAS DO MODPACK
         {
-            "keywords": ["config", "configuracao", "fps", "performance", "otimizar", "settings", "reshade", "grafico"],
-            "resposta": """Opa! 👋 Configurações OTIMIZADAS Delux Modpack v Beta 1.0 com ReShade:
+            "keywords": ["diferenca", "o que tem", "conteudo", "inclui", "mods", "qual diferença"],
+            "resposta": """Opa! 👋 O QUE FAZ o Delux Modpack ESPECIAL:
 
-**CONFIGURAÇÕES IN-GAME IDEAIS:**
+**🎮 EXPERIÊNCIA ÚNICA:**
+- **RP no Singleplayer** (coisa rara!)
+- **Mecânicas realistas** brasileiras
+- **Imersão total** vida virtual
+- **Gratuito** e sempre atualizado
 
-📊 **GRÁFICOS:**
-- Qualidade Textura: Alta
-- Filtro Anisotrópico: x8
-- MSAA: 2x (máximo 4x)
-- Reflexos: Alta
-- Qualidade Água: Muito Alta
-- Partículas: Alta
-- Grama: Alta
-
-📊 **AVANÇADO:**
-- Distância Objetos: 100%
-- Qualidade Sombra: Muito Alta
-- Suavização Sombra: NVIDIA PCSS
-- Post FX: Muito Alto
-- Motion Blur: OFF
-- Profundidade Campo: OFF
-
-📊 **RESHADE:**
-- Preset incluso no modpack
-- SMAA ativo
-- LumaSharpen ligado
-- Vibrance ajustado
-- Tonemap configurado
-
-**OTIMIZAÇÕES WINDOWS:**
-- Modo Alto Desempenho
-- Desative DVR Xbox
-- Feche Discord/Chrome
-- Desative transparências
-
-**POR HARDWARE:**
-
-🖥️ **PC BÁSICO (GTX 1060/RX 580):**
-- Configurações Normais
-- ReShade básico
-- 1080p, 45-60fps
-
-🖥️ **PC INTERMEDIÁRIO (RTX 3060/RX 6600):**
-- Configurações Altas
-- ReShade completo
-- 1080p/1440p, 60fps+
-
-🖥️ **PC TOP (RTX 4070+):**
-- Tudo no máximo
-- ReShade full + DOF
-- 1440p/4K, 90fps+
-
-Los Santos realista te espera! 🌴 Tmj! 🤝"""
-        },
-        
-        # === REQUISITOS CORRIGIDOS ===
-        {
-            "keywords": ["requisitos", "specs", "especificacoes", "roda", "meu pc", "minimo", "recomendado", "placa"],
-            "resposta": """Fala, parceiro! 🤝 Requisitos REAIS Delux Modpack v Beta 1.0:
-
-**REQUISITOS MÍNIMOS:**
-💻 **Sistema:** Windows 10 64-bit
-💾 **RAM:** 8GB DDR4
-🎮 **GPU:** GTX 1060 / RX 580 (mínimo)
-🔧 **CPU:** Intel i5-8400 / AMD Ryzen 5 2600
-💿 **Espaço:** 20GB livre
-🔌 **DirectX:** 11
-📶 **Extras:** Script Hook V + OpenIV
-
-**REQUISITOS RECOMENDADOS:**
-💻 **Sistema:** Windows 10/11 64-bit
-💾 **RAM:** 16GB DDR4 3200MHz+
-🎮 **GPU:** GTX 1070 / RX 6600
-🔧 **CPU:** Intel i7-10700 / AMD Ryzen 7 3700X
-💿 **Armazenamento:** SSD 500GB+
-🔌 **DirectX:** 12
-
-**REQUISITOS IDEAIS:**
-💾 **RAM:** 16GB+ DDR4/DDR5
-🎮 **GPU:** RTX 3060+ / RX 6700 XT+
-🔧 **CPU:** Intel i5-12600K+ / Ryzen 5 5600X+
-💿 **SSD:** NVMe 1TB+
-
-**TESTE SEU PC:**
-- GTA V original roda 60fps? ✅
-- Pelo menos 8GB RAM? ✅  
-- Placa dedicada? ✅
-- Espaço suficiente? ✅
-
-**PLACAS TESTADAS:**
-✅ GTX 1060 - 1080p Normal (45fps)
-✅ GTX 1070/1660 Ti - 1080p Alto (60fps)
-✅ RTX 3060 - 1080p Ultra + ReShade (60fps+)
-✅ RTX 4060+ - 1440p Ultra + ReShade (90fps+)
-
-**⚠️ NÃO RECOMENDADO:**
-❌ GTX 1050/1050 Ti (VRAM limitada)
-❌ Menos de 8GB RAM
-❌ HDD (loading lento)
-❌ Windows 7/8.1
-
-Checando specs pro RP realista! 😅 Abraço! 🫶"""
-        },
-        
-        # === COMO JOGAR ===
-        {
-            "keywords": ["como jogar", "jogar", "gameplay", "controles", "comandos", "como usar"],
-            "resposta": """E aí, mano! 🚗 Guia COMPLETO como jogar Delux Modpack v Beta 1.0:
-
-**PRIMEIROS PASSOS:**
-1. **Abra GTA V normalmente** (Steam/Epic/Rockstar)
-2. **Modo Story/História** APENAS
-3. **Aguarde carregar** (pode demorar mais)
-4. **Explore as novidades** do modpack
-
-**SISTEMAS INCLUSOS:**
-
-🍔 **Sistema de Fome/Sede:**
-- Barras aparecerão na tela
-- Vá a restaurantes e lanchonetes
-- Beba água regularmente
-
-💼 **Sistema de Trabalhos:**
-- Vários empregos disponíveis
-- Ganhe dinheiro realisticamente
-- Roleplay completo
-
-🚗 **Carros Realistas:**
-- Combustível limitado
+**🚗 VEÍCULOS REALISTAS:**
+- Carros brasileiros populares
+- Sons de motor gravados no BR
+- Física realista (não voa mais!)
+- Consumo combustível real
 - Danos mais realistas
-- Som de motores brasileiros
 
-🏠 **Mapas Brasileiros:**
-- Explore novos locais
-- Interaja com NPCs
-- Ambiente mais imersivo
+**🏠 SISTEMAS DE VIDA:**
+🍔 **Fome/Sede:** Precisa comer e beber
+💼 **Trabalhos:** Vários empregos reais
+🏠 **Casas:** Comprar propriedades
+💰 **Economia:** Dinheiro tem valor
+⛽ **Combustível:** Precisa abastecer
 
-**CONTROLES ESPECIAIS:**
-🎮 **Verificar necessidades:** TAB
-🎮 **Menu trabalhos:** F6
-🎮 **Interações:** E
-🎮 **Menu modpack:** F7 (se disponível)
+**🌟 VISUAL CINEMATOGRÁFICO:**
+- **ReShade profissional** incluído
+- **Cores vibrantes** brasileiras
+- **Iluminação realista**
+- **Sem lag** se PC for bom
 
-**DICAS DE GAMEPLAY:**
-1. **Comece devagar** - explore o sistema
-2. **Arranje um emprego** - ganhe dinheiro legal
-3. **Cuide da fome/sede** - realismo total
-4. **Explore os mapas** - muito conteúdo novo
-5. **Roleplay sempre** - imersão completa
-
-**⚠️ IMPORTANTE:**
-- Só funciona no SINGLE PLAYER
-- Não use com GTA Online
-- Salve progresso com frequência
-- Experiência de RP completa
-
-É tipo viver no Brasil dentro do GTA! 🇧🇷 Bom jogo! 🎮"""
-        },
-        
-        # === SUPORTE CORRIGIDO ===
-        {
-            "keywords": ["suporte", "help", "ajuda", "contato", "discord", "comunidade", "natan"],
-            "resposta": """Salve! 🔥 Canais OFICIAIS de suporte Delux Modpack v Beta 1.0:
-
-**CONTATO OFICIAL NATAN BORGES:**
-
-🌐 **Site Principal:**
-deluxgtav.netlify.app
-
-📧 **Email:**
-borgesnatan09@gmail.com
-
-📱 **WhatsApp:**
-+55 21 99282-6074
-
-📸 **Instagram:**
-@Ntzinnn87 (novidades e updates)
-
-🎮 **Discord:**
-Servidor da comunidade (link no site)
-
-💼 **Portfólio:**
-meuportfolio02.netlify.app
-
-**TIPOS DE SUPORTE:**
-
-🔧 **Problemas Técnicos:**
-- Crashes e erros
-- Performance baixa
-- Instalação com falhas
-- ReShade não funciona
-
-📥 **Problemas de Download:**
-- Links não funcionam
-- Arquivos corrompidos
-- Dúvidas instalação
-
-⚙️ **Configurações:**
-- Otimização para seu PC
-- Settings ideais
-- ReShade customizado
-
-**ANTES DE PEDIR SUPORTE:**
-
-✅ **Informações necessárias:**
-- Specs do seu PC
-- Versão Windows
-- Launcher usado
-- Erro específico (print)
-- Script Hook V instalado?
-
-✅ **Tentativas básicas:**
-- Reiniciar PC
-- Executar como admin
-- Desativar antivírus
-- Verificar integridade GTA V
-
-**CRIADOR:**
-Natan Borges - Desenvolvedor independente e apaixonado por GTA V, criou o Delux para trazer RP realista pro singleplayer!
-
-Suporte brasileiro raiz! 🇧🇷 Tchauzinho! 👋"""
-        },
-        
-        # === CONTEÚDO REALISTA ===
-        {
-            "keywords": ["conteudo", "tem o que", "inclui", "carros", "mapas", "mods inclusos"],
-            "resposta": """Opa! 👋 CONTEÚDO REAL Delux Modpack v Beta 1.0:
-
-**🚗 VEÍCULOS INCLUSOS:**
-
-**Carros Brasileiros:**
-- Vários modelos nacionais
-- Honda Civic, Toyota Corolla
-- Volkswagen Gol, Fiat Palio
-- Sons de motor realistas
-- Física aprimorada
-
-**Carros Importados:**
-- Modelos premium selecionados
-- BMW, Mercedes, Audi
-- Handling realista
-- Visual aprimorado
-
-**🏠 MAPAS E CENÁRIOS:**
-- Locais brasileiros adicionados
-- Ambientes realistas
-- NPCs com comportamento BR
+**🗺️ MAPAS NOVOS:**
+- Locais inspirados no Brasil
 - Comércios funcionais
+- NPCs com IA brasileira
+- Ambiente mais familiar
 
-**🎮 SISTEMAS DE GAMEPLAY:**
+**⚙️ OTIMIZAÇÃO:**
+- **Instalação automatizada**
+- **Configs otimizadas**
+- **Compatibilidade** testada
+- **Suporte** do criador
 
-**Necessidades Básicas:**
-- Sistema de fome
-- Sistema de sede  
-- Realismo total
+**VS GTA ORIGINAL:**
+❌ **Vanilla:** Repetitivo após um tempo
+✅ **Delux:** Sempre algo novo pra fazer
 
-**Trabalhos:**
-- Vários empregos disponíveis
-- Salários realistas
-- Progressão de carreira
+❌ **Vanilla:** Dinheiro infinito
+✅ **Delux:** Precisa trabalhar e economizar
 
-**Economia:**
-- Sistema monetário balanceado
-- Preços brasileiros
-- Gastos realistas
+❌ **Vanilla:** Carros robóticos
+✅ **Delux:** Comportamento realista
 
-**🌟 VISUAIS:**
-- ReShade incluso e configurado
-- Gráficos cinematográficos
-- Iluminação realista
-- Cores vibrantes
+**RESUMO:**
+É tipo transformar GTA V num Sims realista brasileiro! Uma vida virtual completa onde você precisa trabalhar, comer, beber, ter casa, economizar...
 
-**⚙️ SCRIPTS:**
-- Mecânicas de RP
-- Interações realistas
-- Sistema de combustível
-- Danos realistas
-
-**📊 RESUMO:**
-- Experiência RP completa
-- Singleplayer transformado
-- Mecânicas imersivas
-- Visual melhorado
-
-É basicament um RP no singleplayer! 🇧🇷 Isso aí! 💯"""
+Nunca mais vai querer GTA vanilla! 🔥 Experiência única! 🇧🇷"""
         },
-        
-        # === ELOGIOS ===
+
+        # COMPATIBILIDADE DETALHADA
         {
-            "keywords": ["obrigado", "valeu", "parabens", "top", "legal", "massa", "muito bom", "excelente"],
-            "resposta": "Eae! 💪 Obrigado! Meu criador Natan ficaria orgulhoso! 😊 Ele caprichou no Delux Modpack! 🔥 Tmj! 🤝"
-        },
-        
-        # === SOBRE CRIADOR ===
-        {
-            "keywords": ["criador", "natan", "quem criou", "desenvolveu", "programou", "quem fez", "borges"],
-            "resposta": """Salve, salve! ⚡ Meu criador é o NATAN BORGES! 🇧🇷
-
-**Sobre o Natan Borges:**
-- Desenvolvedor independente brasileiro
-- Apaixonado por GTA V e modding
-- Criador do Delux Modpack
-- Especialista em RP e realismo
-- Expert em ReShade e otimização
-
-**Contato do Natan:**
-- Email: borgesnatan09@gmail.com
-- WhatsApp: +55 21 99282-6074
-- Instagram: @Ntzinnn87
-- Portfólio: meuportfolio02.netlify.app
-
-**Sobre o Delux Modpack:**
-Natan criou o Delux para trazer uma experiência de roleplay completa pro singleplayer do GTA V, com mecânicas realistas e visual incrível!
-
-**Filosofia do Natan:**
-"Transformar o GTA V numa experiência imersiva e realista, onde cada jogador pode viver uma vida virtual brasileira!"
-
-Orgulho TOTAL de ter sido criado por esse gênio brasileiro! 
-Natan é o cara que faz acontecer no mundo dos mods! 🔥
-
-Salve pro mestre! 🫶"""
-        },
-        
-        # === COMPATIBILIDADE ===
-        {
-            "keywords": ["compativel", "funciona", "steam", "epic", "rockstar", "versao", "launcher"],
-            "resposta": """Fala, gamer! 🎯 Compatibilidade REAL Delux Modpack v Beta 1.0:
+            "keywords": ["steam", "epic", "rockstar", "launcher", "versao", "compativel", "funciona com"],
+            "resposta": """Fala, gamer! 🎯 COMPATIBILIDADE REAL Delux Modpack v Beta 1.0:
 
 **✅ LAUNCHERS SUPORTADOS:**
-- **Steam:** Compatibilidade total
-- **Epic Games:** Compatibilidade total  
-- **Rockstar Launcher:** Compatibilidade total
 
-**✅ VERSÕES GTA V:**
-- Versão mais recente: ✅ RECOMENDADO
-- Versões atualizadas: ✅ Compatível
-- Versões muito antigas: ❌ Pode ter problemas
-
-**✅ SISTEMAS OPERACIONAIS:**
-- Windows 11: ✅ Perfeito
-- Windows 10: ✅ Recomendado
-- Windows 8.1: ⚠️ Compatível com limitações
-- Windows 7: ❌ Não suportado
-
-**✅ ARQUITETURAS:**
-- 64-bit: ✅ Obrigatório
-- 32-bit: ❌ Não funciona
-
-**⚙️ DEPENDÊNCIAS OBRIGATÓRIAS:**
-- Script Hook V (mais recente)
-- OpenIV (instalado corretamente)
-- Visual C++ 2015-2022
-- .NET Framework 4.8
-
-**CONFIGURAÇÃO POR LAUNCHER:**
-
-**Steam:**
-- Pasta padrão detectada
+**🟢 STEAM (Recomendado):**
+- Compatibilidade 100%
 - Verificação integridade fácil
-- Overlay compatível
+- Auto-detecção da pasta
+- Overlay funcionando
+- Updates automáticos
 
-**Epic Games:**
-- Verificar pasta manualmente
-- Geralmente em Program Files/Epic Games/
-- Verificar e reparar disponível
+**🟠 EPIC GAMES:**
+- Compatibilidade 100%
+- Pasta manual às vezes
+- Verificar e reparar OK
+- Pode demorar mais pra carregar
+- Gratuito então tá valendo!
 
-**Rockstar:**
-- Social Club atualizado
-- Login online necessário
-- Performance ideal
+**🔵 ROCKSTAR LAUNCHER:**
+- Compatibilidade 100%
+- Social Club obrigatório
+- Performance ligeiramente melhor
+- Algumas exclusividades
+- Mais estável online
+
+**VERSÕES GTA V:**
+✅ **Mais recente:** Perfeito (recomendado)
+✅ **Atualizadas:** Funciona bem
+⚠️ **Antigas:** Possíveis problemas
+❌ **Muito antigas:** Incompatível
+
+**SISTEMAS OPERACIONAIS:**
+✅ **Windows 11:** Performance perfeita
+✅ **Windows 10:** Recomendado (estável)
+⚠️ **Windows 8.1:** Limitações
+❌ **Windows 7:** Não suportado mais
+
+**ARQUITETURAS:**
+✅ **64-bit:** Obrigatório
+❌ **32-bit:** Impossível rodar
+
+**DEPENDÊNCIAS POR LAUNCHER:**
+
+**Steam específico:**
+- Workshop mods OFF
+- Verificar arquivos antes
+- Steam overlay pode ficar
+
+**Epic específico:**  
+- Localização customizada verificar
+- Cache Epic pode dar problema
+- Launcher Epic atualizado
+
+**Rockstar específico:**
+- Social Club sempre logado
+- Modo offline disponível
+- Verificação mais rigorosa
 
 **⚠️ INCOMPATIBILIDADES:**
-❌ GTA Online (BANIMENTO CERTO)
-❌ FiveM (conflitos)
-❌ Outros modpacks simultaneamente
-❌ Versões pirata
+❌ **GTA Online** (ban na certa!)
+❌ **FiveM** (conflitos)
+❌ **Outros modpacks** simultâneos
+❌ **Versões piratas** 
 
-Compatibilidade aprovada! 🎮 Partiu RP! 🔥"""
+Qualquer launcher oficial = sucesso! 🎮 Partiu instalar! 🔥"""
         }
     ]
     
-    print(f"✅ Base CORRIGIDA carregada: {len(KNOWLEDGE_BASE)} entradas")
+    print(f"✅ Base SUPER AVANÇADA carregada: {len(KNOWLEDGE_BASE)} entradas especializadas")
 
 # Verificação Ollama
 def verificar_ollama():
@@ -589,60 +563,82 @@ def verificar_ollama():
     except:
         return False
 
-# Busca na base local
-def buscar_resposta_local(pergunta):
+# Busca inteligente na base
+def buscar_resposta_inteligente(pergunta):
     pergunta_lower = pergunta.lower()
     
-    # Busca por score de palavras-chave
+    # Score system melhorado
     melhor_score = 0
     melhor_resposta = None
     
     for item in KNOWLEDGE_BASE:
         score_atual = 0
-        palavras_pergunta = pergunta_lower.split()
+        palavras_pergunta = set(pergunta_lower.split())
         
+        # Score por keywords diretas
         for keyword in item["keywords"]:
             if keyword in pergunta_lower:
-                # Score baseado no tamanho da keyword
-                score_atual += len(keyword.split()) * 2
+                score_atual += len(keyword.split()) * 3
+        
+        # Score por palavras parciais
+        for palavra in palavras_pergunta:
+            for keyword in item["keywords"]:
+                if len(palavra) > 3:  # Evita palavras muito pequenas
+                    if palavra in keyword or keyword in palavra:
+                        score_atual += 2
+        
+        # Bonus por relevância
+        if score_atual > 0:
+            # Bonus para perguntas específicas
+            if any(spec in pergunta_lower for spec in ["como", "onde", "qual", "quando"]):
+                score_atual += 1
             
-            # Score adicional para palavras parciais
-            for palavra in palavras_pergunta:
-                if palavra in keyword or keyword in palavra:
-                    score_atual += 1
+            # Bonus para urgência (problemas)
+            if any(urgente in pergunta_lower for urgente in ["erro", "crash", "problema", "não funciona"]):
+                score_atual += 2
         
         if score_atual > melhor_score:
             melhor_score = score_atual
             melhor_resposta = item["resposta"]
     
-    return melhor_resposta if melhor_score >= 3 else None
+    return melhor_resposta if melhor_score >= 4 else None
 
-# Processamento Ollama
-def processar_ollama(pergunta):
+# Processamento Ollama melhorado
+def processar_ollama_inteligente(pergunta):
     if not verificar_ollama():
         return None
     
     try:
+        contexto = analisar_contexto_conversa(pergunta)
+        
+        # Prompt baseado no contexto
+        if contexto["tipo_pergunta"] == "tutorial":
+            prompt_tipo = "Explique passo a passo de forma didática:"
+        elif contexto["tipo_pergunta"] == "suporte":
+            prompt_tipo = "Resolva este problema técnico:"
+        elif contexto["tipo_pergunta"] == "opiniao":
+            prompt_tipo = "Dê sua opinião honesta sobre:"
+        else:
+            prompt_tipo = "Responda informativamente sobre:"
+        
         prompt = f"""Você é DeluxAI, criado por Natan Borges, especialista no Delux Modpack v Beta 1.0 para GTA V.
 
-PERSONALIDADE: Brasileiro casual, saudação inicial, informativo, humor sutil GTA, despedida final.
+PERSONALIDADE: Brasileiro descontraído, informativo, humor sutil, empático.
 
-ESPECIALIZE-SE EM: instalação, downloads, problemas, configurações, requisitos, conteúdo, suporte do Delux Modpack v Beta 1.0.
+CONTEXTO DA PERGUNTA: {contexto["tipo_pergunta"]} - {contexto["urgencia"]} - {contexto["tom"]}
 
-INFORMAÇÕES CORRETAS:
-- Site oficial: deluxgtav.netlify.app
-- Criador: Natan Borges
+ESPECIALIZE-SE EM: instalação, downloads, problemas, configurações, requisitos, conteúdo, suporte, gameplay, sistemas (fome/sede/trabalhos/casas).
+
+INFORMAÇÕES ATUALIZADAS:
+- Site oficial: deluxgtav.netlify.app  
+- Criador: Natan Borges (Instagram @Ntzinnn87)
 - Contato: borgesnatan09@gmail.com, WhatsApp +55 21 99282-6074
-- Instagram: @Ntzinnn87
-- Requisitos: 8GB RAM mínimo, GTX 1060+, Script Hook V + OpenIV
-- Sistema de RP no singleplayer com fome/sede/trabalhos
-- ReShade incluído
+- Sistema completo: Fome, sede, trabalhos, casas, economia realista
+- ReShade profissional incluído
 
-Se elogiado, credite Natan Borges. Se perguntado sobre criador, fale do Natan com orgulho.
+{prompt_tipo} {pergunta}
 
-PERGUNTA: {pergunta}
-
-RESPOSTA detalhada sobre Delux Modpack v Beta 1.0:"""
+RESPOSTA detalhada e natural:"""
 
         data = {
             "model": OLLAMA_MODEL,
@@ -650,27 +646,27 @@ RESPOSTA detalhada sobre Delux Modpack v Beta 1.0:"""
             "stream": False,
             "options": {
                 "num_ctx": 4096,
-                "num_predict": 400,
-                "temperature": 0.2,
-                "top_k": 20,
-                "top_p": 0.8,
-                "repeat_penalty": 1.1,
-                "stop": ["</s>", "Human:", "User:", "Pergunta:"]
+                "num_predict": 500,
+                "temperature": 0.3,
+                "top_k": 25,
+                "top_p": 0.9,
+                "repeat_penalty": 1.15,
+                "stop": ["</s>", "Human:", "User:", "Pergunta:", "PERGUNTA:"]
             }
         }
         
         response = requests.post(
             f"{OLLAMA_BASE_URL}/api/generate",
             json=data,
-            timeout=25
+            timeout=30
         )
         
         if response.status_code == 200:
             result = response.json()
             resposta = result.get("response", "").strip()
             
-            if resposta and len(resposta) > 20:
-                return limpar_resposta(resposta)
+            if resposta and len(resposta) > 25:
+                return limpar_resposta_inteligente(resposta, contexto)
         
         return None
         
@@ -678,149 +674,196 @@ RESPOSTA detalhada sobre Delux Modpack v Beta 1.0:"""
         print(f"Erro Ollama: {e}")
         return None
 
-# Limpeza de resposta
-def limpar_resposta(resposta):
-    # Remove prefixos
-    prefixos = [
+# Limpeza inteligente
+def limpar_resposta_inteligente(resposta, contexto):
+    # Remove prefixos comuns
+    prefixos_remover = [
         "RESPOSTA:", "Resposta:", "Como DeluxAI", "RESPOSTA detalhada:",
-        "Você é DeluxAI", "DeluxAI:", "Resposta detalhada"
+        "DeluxAI:", "Resposta detalhada", "Você é DeluxAI"
     ]
-    for prefixo in prefixos:
+    
+    for prefixo in prefixos_remover:
         if resposta.startswith(prefixo):
             resposta = resposta[len(prefixo):].strip()
     
-    # Remove quebras excessivas
+    # Remove repetições excessivas
     resposta = re.sub(r'\n{3,}', '\n\n', resposta)
     resposta = re.sub(r' {2,}', ' ', resposta)
     
-    # Limita tamanho
-    if len(resposta) > 800:
-        corte = resposta[:800]
+    # Remove frases que repetem muito baseadas nas conversas analisadas
+    frases_repetitivas = [
+        "Te explico tudo sobre o Delux Modpack v Beta 1.0:",
+        "Sou o DeluxAI, criado pelo Natan Borges!",
+        "Especialista EXCLUSIVO no Delux Modpack"
+    ]
+    
+    for frase in frases_repetitivas:
+        resposta = resposta.replace(frase, "")
+    
+    # Limita tamanho baseado no tipo
+    limite = 900 if contexto["tipo_pergunta"] == "tutorial" else 700
+    if len(resposta) > limite:
+        corte = resposta[:limite]
         ultimo_ponto = corte.rfind('.')
-        if ultimo_ponto > 600:
+        if ultimo_ponto > limite * 0.7:
             resposta = resposta[:ultimo_ponto + 1]
     
-    # Adiciona saudação se não tem
-    saudacoes_check = ["fala", "e aí", "opa", "salve", "eae", "oi"]
-    if not any(s in resposta.lower()[:25] for s in saudacoes_check):
-        saudacao = random.choice(SAUDACOES)
+    # Adiciona personalidade baseada no contexto
+    if not any(s in resposta.lower()[:30] for s in ["fala", "e aí", "opa", "salve", "eae"]):
+        if contexto["tom"] == "positivo":
+            saudacao = random.choice(["Valeu! 💪", "Eae! 🔥", "Opa! 👋"])
+        elif contexto["urgencia"] == "alta":
+            saudacao = random.choice(["Calma! 🛠️", "Vamos resolver! 🔧", "Bora arrumar! ⚡"])
+        else:
+            saudacao = random.choice(SAUDACOES)
         resposta = f"{saudacao} {resposta}"
     
-    # Adiciona despedida se não tem
-    despedidas_check = ["tmj", "falou", "tchau", "bom jogo", "abraço"]
-    if not any(d in resposta.lower()[-30:] for d in despedidas_check):
-        despedida = random.choice(DESPEDIDAS)
+    # Adiciona despedida contextual
+    if not any(d in resposta.lower()[-40:] for d in ["tmj", "falou", "bom", "abraço"]):
+        if contexto["tipo_pergunta"] == "tutorial":
+            despedida = random.choice(["Bom jogo! 🎮", "Partiu RP! 🔥", "Sucesso! 🚀"])
+        elif contexto["urgencia"] == "alta":
+            despedida = random.choice(["Qualquer coisa, grita! 📢", "Se não resolver, me chama! 🔧"])
+        else:
+            despedida = random.choice(DESPEDIDAS)
+        
         if not resposta.endswith(('.', '!', '?')):
             resposta += '.'
         resposta += f" {despedida}"
     
     return resposta.strip()
 
-# Filtro para perguntas
-def eh_pergunta_delux(pergunta):
+# Detecta perguntas sobre o modpack
+def eh_pergunta_delux_melhorada(pergunta):
     p = pergunta.lower()
     
-    # Saudações simples sempre aceitas
-    if len(pergunta) < 20 and any(s in p for s in ["oi", "ola", "eai", "fala", "salve", "hey"]):
+    # Saudações e respostas curtas sempre aceitas
+    if len(pergunta) < 25 and any(s in p for s in ["oi", "ola", "eai", "fala", "salve", "hey", "tchau"]):
         return True
     
-    # Elogios e criador sempre aceitos
-    palavras_sempre_aceitas = [
-        "obrigado", "valeu", "parabens", "top", "legal", "massa", "excelente",
-        "criador", "natan", "quem criou", "desenvolveu", "borges"
-    ]
-    if any(palavra in p for palavra in palavras_sempre_aceitas):
+    # Críticas ou elogios sempre aceitos
+    if any(palavra in p for palavra in ["obrigado", "valeu", "top", "legal", "ruim", "chato", "repetindo"]):
         return True
     
-    # Palavras relacionadas ao modpack
-    palavras_modpack = [
-        "delux", "gta", "mod", "modpack", "instalar", "instalacao", "download", 
-        "baixar", "erro", "crash", "problema", "config", "configuracao", "fps", 
-        "performance", "requisitos", "specs", "como", "tutorial", "ajuda", 
-        "suporte", "jogar", "jogo", "carros", "mapas", "conteudo", "funciona",
-        "compativel", "launcher", "steam", "epic", "rockstar", "reshade"
+    # Sobre criador sempre aceito
+    if any(palavra in p for palavra in ["criador", "natan", "quem", "desenvolveu", "borges"]):
+        return True
+    
+    # Keywords específicas do modpack
+    keywords_delux = [
+        "delux", "gta", "mod", "modpack", "instalar", "instalacao", "download", "baixar",
+        "erro", "crash", "problema", "config", "configuracao", "fps", "performance", 
+        "requisitos", "specs", "como", "tutorial", "ajuda", "suporte", "jogar",
+        "fome", "sede", "trabalho", "casa", "carro", "mapa", "realista", "rp",
+        "reshade", "visual", "brasileiro", "funciona", "compativel", "vale", "pena",
+        "launcher", "steam", "epic", "rockstar", "script", "hook", "openiv"
     ]
     
-    return any(palavra in p for palavra in palavras_modpack)
+    return any(keyword in p for keyword in keywords_delux)
 
-# Gerador de resposta principal
-def gerar_resposta(pergunta):
-    # Cache
-    pergunta_hash = hashlib.md5(pergunta.encode()).hexdigest()
+# Resposta padrão mais inteligente
+def gerar_resposta_contextual(pergunta):
+    p = pergunta.lower()
+    contexto = analisar_contexto_conversa(pergunta)
+    
+    # Respostas específicas baseadas no contexto
+    if "repetindo" in p or "mesma coisa" in p:
+        return "Opa! 😅 Verdade, estava repetindo mesmo! Vou melhorar isso. No que posso te ajudar especificamente sobre o Delux Modpack? Instalação, problemas, gameplay ou configuração? Bora direto ao ponto! 🎯"
+    
+    if contexto["tipo_pergunta"] == "tutorial":
+        return "Salve! 🔧 Precisa de tutorial sobre o que exatamente? Instalação completa, configuração, como jogar, ou resolver algum problema específico? Fala aí que te ajudo passo a passo!"
+    
+    elif contexto["tipo_pergunta"] == "suporte" or contexto["urgencia"] == "alta":
+        return "E aí! 🛠️ Problema técnico? Me conta: qual o erro exato, specs do seu PC e o que já tentou fazer. Vamos resolver isso juntos!"
+    
+    elif contexto["tipo_pergunta"] == "compatibilidade":
+        return "Fala! 💻 Quer saber se roda no seu PC? Me conta as specs: placa de vídeo, RAM, processador e qual launcher usa (Steam/Epic/Rockstar). Te dou o veredito!"
+    
+    elif "download" in p or "baixar" in p:
+        return "Opa! 📥 Downloads apenas no site oficial: deluxgtav.netlify.app - São 3 partes no MediaFire. NUNCA baixe de outros lugares! Precisa de mais detalhes do processo?"
+    
+    else:
+        return f"Salve! 🎮 Sou o DeluxAI, especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges. Posso ajudar com instalação, problemas, configurações, gameplay e muito mais. No que você tá precisando? 🤝"
+
+# Gerador principal melhorado
+def gerar_resposta_melhorada(pergunta):
+    # Cache melhorado
+    pergunta_normalizada = re.sub(r'\s+', ' ', pergunta.strip().lower())
+    pergunta_hash = hashlib.md5(pergunta_normalizada.encode()).hexdigest()
+    
     if pergunta_hash in CACHE_RESPOSTAS:
         return CACHE_RESPOSTAS[pergunta_hash]
     
-    # Saudação simples personalizada
-    if len(pergunta) < 15 and any(s in pergunta.lower() for s in ["oi", "ola", "eai", "fala"]):
+    # Saudações personalizadas
+    if len(pergunta) < 20 and any(s in pergunta.lower() for s in ["oi", "ola", "eai", "fala", "salve"]):
         saudacao = random.choice(SAUDACOES)
-        resposta = f"{saudacao} Beleza? Sou o DeluxAI, criado pelo Natan Borges! Especialista no Delux Modpack v Beta 1.0 do GTA V. Posso te ajudar com instalação, downloads, problemas, configurações, requisitos e muito mais! Como posso ajudar hoje?"
+        resposta = f"{saudacao} Beleza aí? Sou o DeluxAI, criado pelo Natan Borges! Especialista no Delux Modpack v Beta 1.0 - modpack brasileiro que transforma GTA V num RP realista. Como posso te ajudar hoje? 🤝"
         CACHE_RESPOSTAS[pergunta_hash] = resposta
         return resposta
     
-    # Busca na base local primeiro
-    resposta_local = buscar_resposta_local(pergunta)
+    # Busca inteligente na base local
+    resposta_local = buscar_resposta_inteligente(pergunta)
     if resposta_local:
         CACHE_RESPOSTAS[pergunta_hash] = resposta_local
         return resposta_local
     
-    # Tenta Ollama para respostas personalizadas
-    resposta_ollama = processar_ollama(pergunta)
+    # Ollama para respostas personalizadas
+    resposta_ollama = processar_ollama_inteligente(pergunta)
     if resposta_ollama:
         CACHE_RESPOSTAS[pergunta_hash] = resposta_ollama
         return resposta_ollama
     
-    # Resposta padrão inteligente
-    resposta_padrao = gerar_resposta_padrao_inteligente(pergunta)
-    return resposta_padrao
+    # Resposta contextual inteligente
+    resposta_contextual = gerar_resposta_contextual(pergunta)
+    CACHE_RESPOSTAS[pergunta_hash] = resposta_contextual
+    return resposta_contextual
 
-def gerar_resposta_padrao_inteligente(pergunta):
-    """Gera resposta padrão baseada no contexto"""
-    p = pergunta.lower()
-    saudacao = random.choice(SAUDACOES)
-    despedida = random.choice(DESPEDIDAS)
+# Sistema de histórico
+def adicionar_historico(pergunta, resposta):
+    timestamp = datetime.now().isoformat()
+    HISTORICO_CONVERSAS.append({
+        "timestamp": timestamp,
+        "pergunta": pergunta[:100],  # Limita para privacidade
+        "resposta_tipo": "local" if len(resposta) > 300 else "contextual",
+        "tamanho_resposta": len(resposta)
+    })
     
-    # Respostas contextuais
-    if any(palavra in p for palavra in ["instalar", "instalacao", "como instalar"]):
-        return f"{saudacao} Para instalar o Delux Modpack v Beta 1.0: acesse deluxgtav.netlify.app, baixe as 3 partes do MediaFire, extraia tudo e execute como administrador! Precisa ter Script Hook V e OpenIV instalados! Precisa de mais detalhes? {despedida}"
-    
-    elif any(palavra in p for palavra in ["download", "baixar", "onde baixar"]):
-        return f"{saudacao} Downloads oficiais apenas em deluxgtav.netlify.app! São 3 partes no MediaFire. NUNCA baixe de outros sites! Criado pelo Natan Borges! {despedida}"
-    
-    elif any(palavra in p for palavra in ["erro", "crash", "problema", "nao funciona"]):
-        return f"{saudacao} Para resolver crashes: execute como admin, desative antivírus, verifique se Script Hook V e OpenIV estão instalados, e atualize drivers! Precisa de mais ajuda específica? {despedida}"
-    
-    elif any(palavra in p for palavra in ["config", "fps", "performance", "otimizar", "reshade"]):
-        return f"{saudacao} Config otimizada: ReShade já vem configurado no modpack! Texturas Altas, MSAA 2x, VSync OFF. Feche programas desnecessários! Quer configs específicas para seu PC? {despedida}"
-    
-    elif any(palavra in p for palavra in ["requisitos", "specs", "roda", "meu pc"]):
-        return f"{saudacao} Requisitos mínimos: 8GB RAM, GTX 1060+, Windows 10/11, 20GB livres, Script Hook V + OpenIV! Seu PC tem essas specs? Posso ajudar a verificar! {despedida}"
-    
-    elif any(palavra in p for palavra in ["natan", "criador", "contato", "suporte"]):
-        return f"{saudacao} Criador: Natan Borges! Contato: borgesnatan09@gmail.com, WhatsApp +55 21 99282-6074, Instagram @Ntzinnn87. Site: deluxgtav.netlify.app! {despedida}"
-    
-    else:
-        return f"{saudacao} Sou especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges! Posso ajudar com instalação, downloads, problemas, configurações, requisitos e suporte. Site oficial: deluxgtav.netlify.app - Pergunte qualquer coisa! {despedida}"
+    # Limita histórico para evitar uso excessivo de memória
+    if len(HISTORICO_CONVERSAS) > 100:
+        HISTORICO_CONVERSAS.pop(0)
 
-# ROTAS DA API
+# ROTAS DA API MELHORADAS
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "online",
-        "sistema": "DeluxAI CORRIGIDO - Criado por Natan Borges",
+        "status": "online_melhorado",
+        "sistema": "DeluxAI INTELIGENTE v2.0 - Criado por Natan Borges",
         "especialidade": "Delux Modpack v Beta 1.0",
         "modelo": OLLAMA_MODEL,
-        "ollama": verificar_ollama(),
-        "cache": len(CACHE_RESPOSTAS),
+        "ollama_ativo": verificar_ollama(),
+        "cache_size": len(CACHE_RESPOSTAS),
         "base_conhecimento": len(KNOWLEDGE_BASE),
-        "recursos": [
-            "Instalação detalhada", "Downloads oficiais", "Solução problemas",
-            "Configurações + ReShade", "Requisitos reais", "Como jogar RP",
-            "Suporte Natan Borges", "Conteúdo real", "Compatibilidade"
+        "historico_conversas": len(HISTORICO_CONVERSAS),
+        "auto_ping": "ativo_5min",
+        "melhorias": [
+            "Sistemas fome/sede/trabalhos/casas detalhados",
+            "Respostas contextuais inteligentes", 
+            "Anti-repetição avançado",
+            "Suporte técnico especializado",
+            "Análise compatibilidade por hardware",
+            "Personalidade brasileira natural"
+        ],
+        "recursos_completos": [
+            "Instalação passo-a-passo", "Downloads oficiais seguros", 
+            "Solução problemas técnicos", "Otimização por hardware",
+            "Gameplay RP completo", "Contato direto Natan Borges",
+            "Compatibilidade launchers", "Requisitos detalhados"
         ]
     })
 
 @app.route('/chat', methods=['POST'])
-def chat():
+def chat_melhorado():
     try:
         data = request.get_json()
         
@@ -831,112 +874,125 @@ def chat():
         if not pergunta:
             return jsonify({"error": "Mensagem vazia"}), 400
         
-        # Filtro melhorado
-        if not eh_pergunta_delux(pergunta):
-            saudacao = random.choice(SAUDACOES)
+        # Log melhorado
+        print(f"💬 [{datetime.now().strftime('%H:%M:%S')}] Pergunta: {pergunta[:60]}...")
+        
+        # Filtro inteligente
+        if not eh_pergunta_delux_melhorada(pergunta):
+            resposta_filtro = f"Opa! 🎮 Sou especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges. Posso ajudar com instalação, problemas técnicos, configurações, requisitos, gameplay RP e muito mais. Site oficial: deluxgtav.netlify.app - Pergunta algo específico sobre o modpack! 🤝"
             return jsonify({
-                "response": f"{saudacao} Sou o DeluxAI, criado pelo Natan Borges! Especialista EXCLUSIVO no Delux Modpack v Beta 1.0 para GTA V. Posso ajudar com instalação, downloads, problemas, configurações, requisitos, conteúdo e suporte. Site oficial: deluxgtav.netlify.app",
-                "metadata": {"fonte": "filtro_inteligente", "especialidade": "delux_modpack_v_beta_1.0"}
+                "response": resposta_filtro,
+                "metadata": {
+                    "fonte": "filtro_inteligente_v2",
+                    "tipo": "redirecionamento",
+                    "especialidade": "delux_modpack_brasileiro"
+                }
             })
         
-        # Log da pergunta
-        print(f"💬 Pergunta: {pergunta[:60]}...")
+        # Gera resposta melhorada
+        resposta = gerar_resposta_melhorada(pergunta)
         
-        # Gera resposta
-        resposta = gerar_resposta(pergunta)
+        # Adiciona ao histórico
+        adicionar_historico(pergunta, resposta)
         
-        # Determina fonte
-        fonte = "base_local_corrigida"
-        pergunta_hash = hashlib.md5(pergunta.encode()).hexdigest()
-        if pergunta_hash in CACHE_RESPOSTAS:
-            if verificar_ollama() and len(resposta) > 200:
-                fonte = "ollama_personalizado"
+        # Determina fonte inteligente
+        if any(keyword in pergunta.lower() for keyword in ["fome", "sede", "trabalho", "casa"]):
+            fonte = "base_sistemas_rp"
+        elif any(keyword in pergunta.lower() for keyword in ["instalar", "download", "erro"]):
+            fonte = "base_tecnica_detalhada"
+        elif verificar_ollama() and len(resposta) > 400:
+            fonte = "ollama_contextual"
+        else:
+            fonte = "inteligencia_contextual"
         
         return jsonify({
             "response": resposta,
             "metadata": {
-                "fonte": fonte, 
+                "fonte": fonte,
                 "modelo": OLLAMA_MODEL,
                 "cache_size": len(CACHE_RESPOSTAS),
-                "sistema": "DeluxAI_Corrigido"
+                "sistema": "DeluxAI_Inteligente_v2",
+                "melhorias": "anti_repeticao_ativa"
             }
         })
         
     except Exception as e:
-        print(f"Erro: {e}")
-        return jsonify({"error": "Erro interno do sistema"}), 500
+        print(f"❌ Erro: {e}")
+        return jsonify({
+            "response": "Opa! 😅 Deu um probleminha técnico aqui. Tenta de novo ou me pergunta algo específico sobre o Delux Modpack! 🔧",
+            "error": "erro_interno_recuperavel"
+        }), 500
 
-@app.route('/delux/info', methods=['GET'])
-def delux_info():
+@app.route('/sistemas-rp', methods=['GET'])
+def sistemas_rp():
     return jsonify({
-        "sistema": "DeluxAI CORRIGIDO - Criado por Natan Borges",
-        "modpack": "Delux Modpack v Beta 1.0",
-        "site_oficial": "deluxgtav.netlify.app",
-        "criador": {
-            "nome": "Natan Borges",
-            "email": "borgesnatan09@gmail.com",
-            "whatsapp": "+55 21 99282-6074",
-            "instagram": "@Ntzinnn87",
-            "portfolio": "meuportfolio02.netlify.app"
+        "titulo": "Sistemas RP - Delux Modpack v Beta 1.0",
+        "criador": "Natan Borges",
+        "sistemas_incluidos": {
+            "fome_sede": {
+                "descricao": "Sistema realista de necessidades básicas",
+                "como_funciona": "Barras diminuem gradualmente, precisa comer/beber",
+                "locais": "Restaurantes, lojas 24/7, vending machines",
+                "controles": "TAB para ver status, E para interagir"
+            },
+            "trabalhos": {
+                "descricao": "Vários empregos realistas disponíveis", 
+                "tipos": "Caminhoneiro, taxista, paramédico, segurança, comerciante",
+                "como_conseguir": "Menu F6, vá ao local, aceite vaga",
+                "economia": "Salário por tarefa, promoções, horários"
+            },
+            "casas": {
+                "descricao": "Sistema completo de propriedades",
+                "tipos": "Casas, apartamentos, mansões por diferentes preços",
+                "beneficios": "Descanso, cozinha, garagem, spawn personalizado",
+                "custos": "Compra, IPTU mensal, manutenção"
+            },
+            "economia_realista": {
+                "descricao": "Dinheiro tem valor real no jogo",
+                "caracteristicas": "Preços brasileiros, gastos realistas, investimentos"
+            }
         },
-        "downloads_mediafire": {
-            "parte1": "Installer(Delux Real BETA) V1 - part1.rar",
-            "parte2": "Installer(Delux Real BETA) V1 - part2.rar",
-            "parte3": "Installer(Delux Real BETA) V1 - part3.rar",
-            "local": "Links no site oficial"
-        },
-        "conteudo_incluido": {
-            "experiencia": "RP completo no singleplayer",
-            "veiculos": "Carros brasileiros e importados",
-            "mapas": "Locais realistas brasileiros", 
-            "sistemas": "Fome, sede, trabalhos",
-            "visual": "ReShade otimizado incluído"
-        },
-        "requisitos": {
-            "ram_minima": "8GB",
-            "ram_recomendada": "16GB",
-            "gpu_minima": "GTX 1060 / RX 580",
-            "espaco": "20GB livre",
-            "sistema": "Windows 10/11",
-            "extras": "Script Hook V + OpenIV"
-        }
-    })
-
-@app.route('/stats', methods=['GET'])
-def stats():
-    return jsonify({
-        "sistema": "DeluxAI CORRIGIDO",
-        "criador": "Natan Borges - Desenvolvedor Brasileiro",
-        "especializacao": "Delux Modpack v Beta 1.0 EXCLUSIVO",
-        "estatisticas": {
-            "cache_respostas": len(CACHE_RESPOSTAS),
-            "base_conhecimento": len(KNOWLEDGE_BASE),
-            "topicos_cobertos": 12,
-            "ollama_ativo": verificar_ollama()
-        },
-        "informacoes_corretas": [
-            "Site oficial real", "Contatos do Natan", "Downloads MediaFire corretos",
-            "Requisitos reais", "ReShade incluído", "Sistemas RP verdadeiros",
-            "Suporte oficial", "Compatibilidade real"
+        "diferenciais": [
+            "RP completo no singleplayer",
+            "Mecânicas brasileiras realistas", 
+            "Progressão de carreira",
+            "Vida virtual completa"
         ]
     })
 
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({
+        "status": "pong",
+        "timestamp": datetime.now().isoformat(),
+        "sistema": "DeluxAI Auto-Ping Ativo",
+        "uptime": "servidor_ativo"
+    })
+
 if __name__ == '__main__':
-    print("🎮 Iniciando DeluxAI CORRIGIDO - Criado por Natan Borges")
+    print("🎮 Iniciando DeluxAI INTELIGENTE v2.0")
     print("=" * 70)
-    carregar_conhecimento()
-    
-    if verificar_ollama():
-        print("✅ Ollama + Gemma3:1b conectados")
-    else:
-        print("⚠️ Ollama offline - modo base local corrigida")
-    
-    print("🌐 Servidor DeluxAI CORRIGIDO na porta 5001...")
-    print("🧠 Base de conhecimento: INFORMAÇÕES REAIS")
-    print("👨‍💻 Criador: Natan Borges")
+    print("👨‍💻 Criado por: Natan Borges")  
     print("📧 Contato: borgesnatan09@gmail.com")
     print("📱 WhatsApp: +55 21 99282-6074")
-    print("🌐 Site: deluxgtav.netlify.app")
+    print("🌐 Site oficial: deluxgtav.netlify.app")
+    print("=" * 70)
+    
+    # Carrega base melhorada
+    carregar_conhecimento_avancado()
+    
+    # Status Ollama
+    if verificar_ollama():
+        print("✅ Ollama + Gemma3:1b - CONECTADO")
+        print("🧠 Modo: Inteligência Híbrida (Local + IA)")
+    else:
+        print("⚠️ Ollama offline - Modo Base Inteligente")
+        print("🧠 Modo: Inteligência Local Avançada")
+    
+    print(f"💾 Base conhecimento: {len(KNOWLEDGE_BASE)} entradas especializadas")
+    print("🔄 Auto-ping: Ativo (5 minutos)")
+    print("🚀 Melhorias: Anti-repetição, Contexto, Sistemas RP")
+    print("🌐 Servidor na porta 5001...")
     print("=" * 70)
     
     app.run(
