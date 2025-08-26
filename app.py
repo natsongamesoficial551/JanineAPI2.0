@@ -73,6 +73,8 @@ def analisar_intencao(pergunta):
         "download_links": 0,
         "requisitos": 0,
         "contato": 0,
+        "contato_whatsapp": 0,
+        "contato_email": 0,
         "desenvolvedor": 0,
         "saudacao": 0,
         "despedida": 0,
@@ -83,10 +85,33 @@ def analisar_intencao(pergunta):
         "doacao": 0,
         "teste": 0,
         "ajuda": 0,
+        "confirmacao_download": 0,
         "geral": 0
     }
     
     # PALAVRAS-CHAVE MEGA EXPANDIDAS
+    
+    # Confirmação download - NOVO baseado na conversa 3
+    palavras_confirmacao_download = [
+        "ok vou baixar", "vou baixar", "vou baixar aqui", "baixando aqui", "baixando",
+        "vou tentar baixar", "vou fazer download", "vou pegar", "vou pegar os arquivos",
+        "obrigado vou baixar", "valeu vou baixar", "beleza vou baixar", "certo vou baixar",
+        "entendi vou baixar", "vou baixar e te falo", "baixo e falo", "baixando e depois falo"
+    ]
+    
+    # WhatsApp específico - NOVO baseado nas conversas 1
+    palavras_whatsapp = [
+        "whatsapp do dono", "whatsapp do natan", "whatsapp", "zap", "zap do dono",
+        "me manda o whatsapp", "manda whatsapp", "numero do whatsapp", "whats",
+        "numero do natan", "telefone", "celular", "contato whatsapp", "whatsapp dele"
+    ]
+    
+    # Email específico - NOVO baseado na conversa 2
+    palavras_email = [
+        "email do natan", "email do dono", "email", "e-mail", "me manda o email",
+        "manda email", "manda o e-mail", "email dele", "endereço de email",
+        "correio eletrônico", "contato por email", "email para contato"
+    ]
     
     # Teste/Experimentar - NOVO baseado nas conversas
     palavras_teste = [
@@ -154,11 +179,12 @@ def analisar_intencao(pergunta):
         "criador do modpack", "quem fez isso", "quem fez esse mod"
     ]
     
-    # Contato - EXPANDIDO para incluir pedidos de contato por problemas
+    # Contato geral - EXPANDIDO para incluir pedidos de contato por problemas
     palavras_contato = [
-        "contato", "falar", "whatsapp", "email", "instagram", "discord", "suporte", "ajuda",
+        "contato", "falar", "suporte", "ajuda", "discord", 
         "me manda o contato", "contato do dono", "falar com ele", "contato do criador",
-        "contato do desenvolvedor", "como falo com", "preciso falar com", "contato natan"
+        "contato do desenvolvedor", "como falo com", "preciso falar com", "contato natan",
+        "instagram", "redes sociais", "como entrar em contato"
     ]
     
     # Doação - NOVO
@@ -208,6 +234,18 @@ def analisar_intencao(pergunta):
     ]
     
     # CONTAGEM COM PESOS AJUSTADOS
+    for palavra in palavras_confirmacao_download:
+        if palavra in p:
+            intencoes["confirmacao_download"] += 6
+    
+    for palavra in palavras_whatsapp:
+        if palavra in p:
+            intencoes["contato_whatsapp"] += 8  # Prioridade máxima
+    
+    for palavra in palavras_email:
+        if palavra in p:
+            intencoes["contato_email"] += 8  # Prioridade máxima
+    
     for palavra in palavras_teste:
         if palavra in p:
             intencoes["teste"] += 6
@@ -293,6 +331,91 @@ def carregar_conhecimento_especializado():
     global KNOWLEDGE_BASE
     
     KNOWLEDGE_BASE = {
+        "confirmacao_download": {
+            "resposta": """Opa! 👍 Perfeito!
+
+**🔥 DICAS PRO SEU DOWNLOAD:**
+
+**📋 LEMBRETES IMPORTANTES:**
+- **Todas as 3 partes** na mesma pasta
+- **NÃO extraia** separadamente  
+- Total: **~20GB**
+- **100% gratuito** e seguro
+
+**⚡ APÓS BAIXAR:**
+1. **Extraia tudo junto** (não separe!)
+2. **Execute como ADMINISTRADOR**
+3. **Selecione pasta** correta do GTA V
+4. **Aguarde instalação** (15-30 min)
+
+**🎮 DEPOIS DA INSTALAÇÃO:**
+- **Demora mais** pra carregar (normal!)
+- Procure **ícones no mapa** pros trabalhos
+- **Aperte E** pra interagir
+- É uma experiência **totalmente nova**!
+
+**Me fala depois como foi!** Tenho certeza que vai curtir demais! 🚀
+
+**Qualquer problema, me chama!** Tmj! 🤝""",
+            "keywords": ["ok vou baixar", "vou baixar", "baixando", "vou fazer download"]
+        },
+        
+        "contato_whatsapp": {
+            "resposta": """Opa! 📱 **WHATSAPP DO NATAN BORGES:**
+
+**📞 NÚMERO DIRETO:**
+**+55 21 99282-6074**
+
+**💬 LINK DIRETO:**
+**wa.me/5521992826074**
+(Clique e já abre no WhatsApp!)
+
+**⏰ HORÁRIO DE ATENDIMENTO:**
+- **9h às 22h** (todos os dias)
+- Ele sempre responde!
+
+**🤝 NATAN É SUPER PRESTATIVO:**
+- Resolve problemas técnicos
+- Tira dúvidas sobre o modpack  
+- Ajuda na instalação
+- Recebe feedback e sugestões
+
+**📧 OUTROS CONTATOS:**
+- **Email:** borgesnatan09@gmail.com
+- **Instagram:** @Ntzinnn87
+
+**Fala com ele sem medo!** É gente boa demais! 😎 Tmj! 🔥""",
+            "keywords": ["whatsapp do dono", "whatsapp do natan", "whatsapp", "zap", "numero"]
+        },
+        
+        "contato_email": {
+            "resposta": """Opa! 📧 **EMAIL DO NATAN BORGES:**
+
+**✉️ EMAIL PRINCIPAL:**
+**borgesnatan09@gmail.com**
+
+**📨 COMO USAR:**
+- Mande email detalhado
+- Resposta em **24-48h**
+- Ele sempre ajuda!
+
+**💼 MELHOR PRA:**
+- Reportar bugs detalhados
+- Enviar screenshots de erro
+- Sugestões de melhoria
+- Contato mais formal
+
+**📱 CONTATO MAIS RÁPIDO:**
+- **WhatsApp:** +55 21 99282-6074
+- **Instagram:** @Ntzinnn87
+
+**🤝 NATAN SEMPRE RESPONDE:**
+Seja por email, WhatsApp ou Instagram. É desenvolvedor brasileiro que valoriza a comunidade!
+
+**Manda mensagem pra ele!** 😎 Tmj! 🔥""",
+            "keywords": ["email do natan", "email do dono", "email", "e-mail"]
+        },
+        
         "teste": {
             "resposta": """Opa! 🎮 Massa que vai testar o Delux Modpack!
 
@@ -754,7 +877,7 @@ Site: deluxgtav.netlify.app (seção Bugs)
 - Email: 24-48h resposta
 
 **Entre em contato sem medo! Natan sempre ajuda!** 🤝""",
-            "keywords": ["contato", "falar", "whatsapp", "email", "instagram", "suporte", "contato do dono", "me manda o contato"]
+            "keywords": ["contato", "falar", "suporte", "discord", "instagram", "contato do dono", "me manda o contato"]
         },
         
         "desenvolvedor": {
@@ -898,7 +1021,7 @@ Especialista no **Delux Modpack v Beta 1.0** - o modpack brasileiro que transfor
         }
     }
     
-    print(f"✅ Base CORRIGIDA carregada: {len(KNOWLEDGE_BASE)} categorias")
+    print(f"✅ Base CORRIGIDA v7.1 carregada: {len(KNOWLEDGE_BASE)} categorias")
 
 # Busca resposta especializada MELHORADA
 def buscar_resposta_especializada(pergunta):
@@ -927,6 +1050,9 @@ def processar_ollama_focado(pergunta, intencao):
     try:
         # Prompts específicos CORRIGIDOS
         prompts = {
+            "confirmacao_download": "Responda positivamente para quem confirmou que vai baixar o modpack, dando dicas pós-download:",
+            "contato_whatsapp": "Forneça APENAS o WhatsApp do Natan Borges com informações completas:",
+            "contato_email": "Forneça APENAS o email do Natan Borges com informações completas:",
             "teste": "Responda positivamente para quem vai testar o modpack, dando dicas:",
             "ajuda": "Liste todas as coisas que o DeluxAI pode ajudar sobre o Delux Modpack:",
             "funcionamento": "Explique detalhadamente como funciona o Delux Modpack, confirmando que SIM funciona perfeitamente:",
@@ -1106,11 +1232,23 @@ def eh_pergunta_delux_focada(pergunta):
         # Ajuda
         if any(a in p for a in ["me ajuda", "ajuda", "pode ajudar", "no que pode", "como pode ajudar"]):
             return True
+        # Confirmação download - NOVO
+        if any(c in p for c in ["vou baixar", "baixando", "ok vou baixar", "vou baixar aqui", "baixo e falo"]):
+            return True
     
-    # Keywords MEGA AMPLAS - aceita quase TUDO relacionado
+    # Keywords MEGA AMPLAS - aceita quase TUDO relacionado (expandido para incluir contatos específicos)
     keywords_aceitas = [
         # Sobre o modpack - MAIS VARIAÇÕES
         "delux", "modpack", "mod", "gta", "v", "beta", "1.0", "esse modpack", "isso",
+        
+        # Contatos específicos - NOVO baseado nas conversas
+        "whatsapp do dono", "whatsapp do natan", "whatsapp", "zap", "numero", "telefone",
+        "email do natan", "email do dono", "email", "e-mail", "correio",
+        "me manda o whatsapp", "me manda o email", "manda whatsapp", "manda email",
+        
+        # Confirmações - NOVO baseado na conversa 3
+        "vou baixar", "baixando", "ok vou baixar", "vou baixar aqui", "baixo e falo",
+        "obrigado vou baixar", "valeu vou baixar", "beleza vou baixar",
         
         # Ações técnicas - EXPANDIDO
         "instalar", "instalacao", "install", "baixar", "download", "rodar", "executar",
@@ -1129,9 +1267,9 @@ def eh_pergunta_delux_focada(pergunta):
         "trabalho", "casa", "propriedade", "rp", "roleplay", "hud", "vida", "colete", "dinheiro",
         
         # Pessoas e contato - EXPANDIDO
-        "natan", "borges", "desenvolvedor", "criador", "contato", "whatsapp", "quem", "quem é",
-        "email", "instagram", "suporte", "ajuda", "dono", "quem fez", "quem criou",
-        "contato do dono", "me manda o contato", "falar com ele",
+        "natan", "borges", "desenvolvedor", "criador", "contato", "falar", "quem", "quem é",
+        "suporte", "ajuda", "dono", "quem fez", "quem criou",
+        "contato do dono", "me manda o contato", "falar com ele", "contato natan",
         
         # Downloads - MAIS OPÇÕES
         "site", "oficial", "mediafire", "link", "gratuito", "free", "seguro", "links",
@@ -1195,8 +1333,14 @@ def gerar_resposta_otimizada(pergunta):
         print("✅ Resposta do Ollama focado")
         return resposta_ollama
     
-    # Resposta de fallback ULTRA MELHORADAS
+    # Resposta de fallback ULTRA MELHORADAS baseadas nas conversas
     fallbacks = {
+        "confirmacao_download": "Opa! 👍 Perfeito! Dicas pro download: baixe as 3 partes na mesma pasta, não extraia separadamente, total ~20GB. Após baixar: extraia tudo junto, execute como admin, selecione pasta do GTA V. Me fala depois como foi! 🔥",
+        
+        "contato_whatsapp": "Opa! 📱 WhatsApp do Natan Borges: +55 21 99282-6074 (wa.me/5521992826074). Horário: 9h às 22h todos os dias. Ele sempre responde e ajuda! Fala com ele sem medo! 🤝",
+        
+        "contato_email": "Opa! 📧 Email do Natan Borges: borgesnatan09@gmail.com. Resposta em 24-48h. Melhor pra reportar bugs detalhados e sugestões. Natan sempre responde! 🔥",
+        
         "teste": "Opa! 🎮 Massa que vai testar o Delux Modpack! Dicas: demora mais pra carregar (normal), procure ícones no mapa pros trabalhos, aperte E pra interagir. É uma experiência incrível! Depois me conta como foi! 🔥",
         
         "ajuda": "Opa! 🤝 Posso te ajudar com TUDO do Delux Modpack: como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, gameplay, problemas, requisitos, configurações, contatos do Natan, opiniões. Me pergunta qualquer coisa! 🎮",
@@ -1249,29 +1393,31 @@ def verificar_ollama():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "online_v7_corrigido",
-        "sistema": "DeluxAI v7.0 CORRIGIDO - Criado por Natan Borges",
+        "status": "online_v7_1_treinado",
+        "sistema": "DeluxAI v7.1 TREINADO - Criado por Natan Borges",
         "especialidade": "Delux Modpack v Beta 1.0",
         "modelo": OLLAMA_MODEL,
         "ollama_ativo": verificar_ollama(),
         "cache_size": len(CACHE_RESPOSTAS),
         "categorias": list(KNOWLEDGE_BASE.keys()) if KNOWLEDGE_BASE else [],
-        "correcoes_v7": [
-            "Adicionado 'teste' para 'vou testar o modpack'",
-            "Adicionado 'ajuda' para 'no que você pode me ajudar'", 
-            "Elogios agora incluem 'excelente', 'você é bom'",
-            "Contato priorizado quando há erro persistente",
+        "correcoes_v7_1": [
+            "Treinamento baseado nas 3 conversas fornecidas",
+            "Contato WhatsApp específico: +55 21 99282-6074",
+            "Contato Email específico: borgesnatan09@gmail.com", 
+            "Confirmação download: 'ok vou baixar' → dicas",
+            "Detecção melhorada para pedidos de contato específicos",
+            "Respostas corretas para WhatsApp e Email do Natan",
+            "Fallback: 'Desculpe, ainda estou sendo treinada'",
+            "Múltiplas variações de pergunta detectadas",
             "CORRIGIDO: Sem TAB para menu (HUD já aparece)",
             "CORRIGIDO: Sem F6 para trabalhos (ícones no mapa + E)",
             "CORRIGIDO: Sem mapas, sons ou lojas brasileiros",
-            "CORRIGIDO: Gameplay com interações corretas",
-            "Treinamento baseado nas 6 conversas fornecidas",
-            "Detecção melhorada para variações de perguntas"
+            "CORRIGIDO: Gameplay com interações corretas"
         ]
     })
 
 @app.route('/chat', methods=['POST'])
-def chat_v7_corrigido():
+def chat_v7_1_treinado():
     try:
         data = request.get_json()
         
@@ -1286,12 +1432,12 @@ def chat_v7_corrigido():
         
         # Filtro ULTRA MELHORADO - aceita MUITO mais relacionado
         if not eh_pergunta_delux_focada(pergunta):
-            resposta_filtro = "Opa! 🎮 Sou o DeluxAI, especialista no Delux Modpack v Beta 1.0 criado pelo Natan Borges. Posso ajudar com TUDO sobre o modpack: como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, problemas, requisitos, gameplay RP, configurações, contatos, doações, opiniões. Site oficial: deluxgtav.netlify.app - Pergunta qualquer coisa! 🤝"
+            resposta_filtro = "Desculpe, ainda estou sendo treinada para responder apenas sobre o Delux Modpack v Beta 1.0. Posso ajudar com: instalação, downloads + links diretos, gameplay, problemas, requisitos, configurações, contatos do Natan Borges, opiniões sobre o modpack. Site oficial: deluxgtav.netlify.app - Pergunta algo sobre o modpack! 🎮"
             return jsonify({
                 "response": resposta_filtro,
                 "metadata": {
-                    "fonte": "filtro_v7_corrigido", 
-                    "tipo": "redirecionamento_completo"
+                    "fonte": "filtro_v7_1_treinado", 
+                    "tipo": "treinamento_limitado"
                 }
             })
         
@@ -1301,11 +1447,11 @@ def chat_v7_corrigido():
         # Determina fonte mais precisa
         intencao = analisar_intencao(pergunta)
         if intencao in KNOWLEDGE_BASE:
-            fonte = f"base_corrigida_{intencao}"
+            fonte = f"base_treinada_{intencao}"
         elif verificar_ollama():
-            fonte = f"ollama_corrigido_{intencao}"
+            fonte = f"ollama_treinado_{intencao}"
         else:
-            fonte = f"fallback_corrigido_{intencao}"
+            fonte = f"fallback_treinado_{intencao}"
         
         return jsonify({
             "response": resposta,
@@ -1313,17 +1459,18 @@ def chat_v7_corrigido():
                 "fonte": fonte,
                 "intencao": intencao,
                 "modelo": OLLAMA_MODEL,
-                "sistema": "DeluxAI_v7_Corrigido",
+                "sistema": "DeluxAI_v7_1_Treinado",
                 "site_oficial": "deluxgtav.netlify.app",
-                "correcoes_aplicadas": True
+                "treinamento_aplicado": True,
+                "conversas_base": 3
             }
         })
         
     except Exception as e:
         print(f"❌ Erro: {e}")
         return jsonify({
-            "response": "Eae! 😅 Deu um probleminha aqui, mas já volto! Me pergunta sobre como funciona (SIM, funciona perfeitamente!), instalação, downloads + links diretos, gameplay (sem TAB, sem F6), problemas, contatos, doações ou qualquer coisa do Delux Modpack! Site: deluxgtav.netlify.app 🔧",
-            "error": "erro_temporario"
+            "response": "Desculpe, ainda estou sendo treinada. Deu um probleminha aqui, mas já volto! Me pergunta sobre instalação, downloads + links diretos, gameplay (sem TAB, sem F6), problemas, contatos do Natan, ou qualquer coisa do Delux Modpack! Site: deluxgtav.netlify.app 🔧",
+            "error": "erro_temporario_treinamento"
         }), 500
 
 @app.route('/ping', methods=['GET'])
@@ -1331,11 +1478,11 @@ def ping():
     return jsonify({
         "status": "pong",
         "timestamp": datetime.now().isoformat(),
-        "sistema": "DeluxAI v7.0 CORRIGIDO - Auto-Ping Ativo"
+        "sistema": "DeluxAI v7.1 TREINADO - Auto-Ping Ativo"
     })
 
 if __name__ == '__main__':
-    print("🎮 Iniciando DeluxAI v7.0 CORRIGIDO")
+    print("🎮 Iniciando DeluxAI v7.1 TREINADO")
     print("=" * 80)
     print("👨‍💻 Criado por: Natan Borges")  
     print("📧 Contato: borgesnatan09@gmail.com")
@@ -1345,26 +1492,26 @@ if __name__ == '__main__':
     print("💼 Portfólio: meuportfolio02.netlify.app")
     print("=" * 80)
     
-    # Carrega base CORRIGIDA
+    # Carrega base TREINADA
     carregar_conhecimento_especializado()
     
     # Status
     if verificar_ollama():
-        print("✅ Ollama CONECTADO - Modo Híbrido Corrigido")
+        print("✅ Ollama CONECTADO - Modo Híbrido Treinado")
     else:
-        print("⚠️ Ollama offline - Modo Base Corrigida")
+        print("⚠️ Ollama offline - Modo Base Treinada")
     
-    print("🔧 CORREÇÕES v7.0 APLICADAS:")
-    print("   ✅ 'vou testar o modpack' → resposta especializada")
-    print("   ✅ 'no que você pode me ajudar' → lista completa")
-    print("   ✅ 'achei o mod excelente' → elogio reconhecido")
-    print("   ✅ 'você é bom mesmo' → elogio reconhecido")
-    print("   ✅ 'erro persiste + contato' → contato priorizado")
+    print("🎓 TREINAMENTO v7.1 APLICADO:")
+    print("   📞 'me manda o whatsapp do dono' → WhatsApp específico")
+    print("   📧 'me manda o email do natan' → Email específico")
+    print("   👍 'ok vou baixar aqui' → confirmação + dicas")
+    print("   🔄 Múltiplas variações de pergunta detectadas")
+    print("   ⚠️ Fallback: 'Desculpe, ainda estou sendo treinada'")
     print("   🚫 REMOVIDO: TAB para menu (HUD já aparece)")
     print("   🚫 REMOVIDO: F6 para trabalhos")
     print("   🚫 REMOVIDO: mapas, sons, lojas brasileiros")
     print("   ✅ CORRIGIDO: trabalhos = ícones no mapa + E")
-    print("   ✅ Treinamento baseado nas 6 conversas")
+    print("   📚 Base: 3 conversas de treinamento")
     print("🔄 Auto-ping ativo (5min)")
     print("🚀 Servidor iniciando na porta 5001...")
     print("=" * 80)
@@ -1374,4 +1521,4 @@ if __name__ == '__main__':
         port=5001,
         debug=False,
         threaded=True
-    )
+    ) "
