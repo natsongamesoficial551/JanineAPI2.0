@@ -160,7 +160,7 @@ def analisar_intencao(pergunta):
         # Horários
         palavras_horarios = [
             "horario", "horários", "que horas", "funcionamento", "aberto",
-            "das 8h", "18h", "manhã", "tarde", "noite", "fim de semana",
+            "das 9h", "19h", "manhã", "tarde", "noite", "fim de semana",
             "sabado", "domingo", "quando funciona"
         ]
         
@@ -298,7 +298,7 @@ Posso te ajudar com:
 - Agendamento de visitas
 - Festas para até 100 pessoas
 - Localização em Vargem Grande
-- Horários: 8h às 18h (sábado ou domingo)
+- Horários: 9h às 19h (sábado ou domingo)
 
 Em que posso ajudar você?
 
@@ -321,7 +321,7 @@ Posso te ajudar com:
 - Agendar visitas para conhecer o espaço
 - Informações sobre festas até 100 pessoas
 - Localização: Vargem Grande - RJ
-- Horários: 8h às 18h (sábado ou domingo)
+- Horários: 9h às 19h (sábado ou domingo)
 
 Nossa missão: Unir famílias com a energia da natureza!
 
@@ -380,7 +380,7 @@ Para marcar sua festa, é simples:
 3. Alexandre vai fazer seu orçamento personalizado
 
 Informações importantes:
-- Horário: 8h às 18h
+- Horário: 9h às 19h
 - Local: Vargem Grande - RJ
 - Apenas um evento por fim de semana
 - Ambiente familiar com energia da natureza
@@ -403,7 +403,7 @@ Cada evento é único, Alexandre faz orçamento sob medida considerando:
 - Tipo de evento
 - Número de convidados (até 100 pessoas)
 - Data escolhida (sábado ou domingo)
-- Horário: 8h às 18h
+- Horário: 9h às 19h
 
 Vantagens:
 - Apenas um evento por fim de semana
