@@ -76,11 +76,145 @@ ELOGIOS_ESPACO_RESPOSTAS = [
     "Que alegria! Nosso espaço tem essa magia!"
 ]
 
+# NOVA FUNÇÃO: Detecta perguntas que precisam de Alexandre
+def precisa_contatar_alexandre(pergunta):
+    """Detecta perguntas que a IA não pode responder e precisam de Alexandre"""
+    try:
+        p = pergunta.lower().strip()
+        
+        # Palavras-chave que indicam necessidade de contato direto
+        palavras_alexandre = [
+            # Datas específicas
+            "data", "datas", "disponível", "disponivel", "livre", "ocupado",
+            "agenda", "agendado", "calendário", "calendario", "quando posso",
+            "que dia", "dia disponível", "fim de semana livre",
+            "próximo sábado", "proximo sabado", "próximo domingo", "proximo domingo",
+            "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+            "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+            "2024", "2025", "2026",
+            
+            # Disponibilidade específica
+            "está livre", "esta livre", "tem vaga", "posso marcar para",
+            "quero marcar para", "reservar para", "agendar para",
+            "dia 15", "dia 20", "dia 25", "dia 30", "dia 31",
+            
+            # Detalhes específicos que só Alexandre sabe
+            "contrato", "clausulas", "cláusulas", "pagamento", "forma de pagamento",
+            "entrada", "sinal", "parcelas", "desconto", "promoção", "promocao",
+            "tabela completa", "lista de preços", "preço exato", "valor exato",
+            
+            # Personalizações específicas
+            "posso trazer", "pode trazer", "decoração", "decoracao", "som",
+            "equipamento", "mesa", "cadeira", "banheiro", "cozinha",
+            "estacionamento", "segurança", "energia elétrica", "eletrica",
+            
+            # Informações técnicas
+            "regulamento", "regras específicas", "regras especificas",
+            "documentos", "alvará", "alvara", "licença", "licenca",
+            "bombeiros", "vigilância", "vigilancia"
+        ]
+        
+        # Se tem qualquer palavra que precisa de Alexandre
+        if any(palavra in p for palavra in palavras_alexandre):
+            return True
+        
+        # Perguntas muito específicas (mais de 15 palavras sobre detalhes)
+        if len(p.split()) > 15:
+            palavras_detalhadas = ["como", "quando", "onde", "quanto", "qual", "posso", "pode"]
+            if any(palavra in p for palavra in palavras_detalhadas):
+                return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"❌ Erro na detecção Alexandre: {e}")
+        return False
+
+# Resposta padrão para contatar Alexandre
+def gerar_resposta_contatar_alexandre(pergunta):
+    """Gera resposta direcionando para Alexandre"""
+    try:
+        p = pergunta.lower().strip()
+        
+        # Respostas específicas baseadas no tipo de pergunta
+        if any(palavra in p for palavra in ["data", "datas", "disponível", "livre", "agenda", "quando"]):
+            return """Para saber datas disponíveis, entre em contato diretamente com Alexandre!
+
+WhatsApp: 21 98124-6196
+
+Alexandre tem a agenda completa e pode:
+- Verificar datas livres
+- Confirmar disponibilidade
+- Fazer sua reserva na hora
+
+Ele responde rapidamente e vai cuidar de tudo para você!
+
+Vibrações Positivas!"""
+
+        elif any(palavra in p for palavra in ["preço", "valor", "pagamento", "contrato", "desconto"]):
+            return """Para informações detalhadas sobre valores e pagamento, fale com Alexandre!
+
+WhatsApp: 21 98124-6196
+
+Alexandre vai explicar:
+- Valores completos
+- Formas de pagamento
+- Condições especiais
+- Tudo sobre o contrato
+
+Cada evento é único, então ele faz um atendimento personalizado!
+
+Vibrações Positivas!"""
+
+        elif any(palavra in p for palavra in ["trazer", "decoração", "som", "equipamento"]):
+            return """Para detalhes sobre o que pode trazer e estrutura disponível, converse com Alexandre!
+
+WhatsApp: 21 98124-6196
+
+Alexandre vai esclarecer:
+- O que você pode trazer
+- Equipamentos disponíveis
+- Regras do espaço
+- Estrutura completa
+
+Ele conhece todos os detalhes e vai te orientar!
+
+Vibrações Positivas!"""
+
+        else:
+            # Resposta geral para outras perguntas específicas
+            return """Para essa informação específica, é melhor falar diretamente com Alexandre!
+
+WhatsApp: 21 98124-6196
+
+Alexandre tem todas as informações detalhadas e pode:
+- Responder suas dúvidas específicas
+- Dar orientações personalizadas
+- Cuidar de todos os detalhes
+
+Ele é super atencioso e vai te ajudar com tudo!
+
+Vibrações Positivas!"""
+            
+    except Exception as e:
+        print(f"❌ Erro na resposta Alexandre: {e}")
+        return """Para essa informação, entre em contato com Alexandre!
+
+WhatsApp: 21 98124-6196
+
+Ele tem todas as informações e vai te ajudar!
+
+Vibrações Positivas!"""
+
 # Sistema de análise de intenção - Janine Melhorado
 def analisar_intencao(pergunta):
     """Analisa a intenção das perguntas sobre o espaço de festas"""
     try:
         p = pergunta.lower().strip()
+        
+        # PRIMEIRA VERIFICAÇÃO: Se precisa contatar Alexandre
+        if precisa_contatar_alexandre(pergunta):
+            return "contatar_alexandre"
         
         intencoes = {
             "saudacao": 0,
@@ -97,7 +231,8 @@ def analisar_intencao(pergunta):
             "capacidade": 0,
             "eventos": 0,
             "missao": 0,
-            "marcar_evento": 0,  # NOVA INTENÇÃO
+            "marcar_evento": 0,
+            "contatar_alexandre": 0,  # NOVA INTENÇÃO
             "geral": 0
         }
         
@@ -298,7 +433,7 @@ Posso te ajudar com:
 - Agendamento de visitas
 - Festas para até 100 pessoas
 - Localização em Vargem Grande
-- Horários: 9h às 19h (sábado ou domingo)
+- Horários: 8h às 18h (sábado ou domingo)
 
 Em que posso ajudar você?
 
@@ -321,7 +456,7 @@ Posso te ajudar com:
 - Agendar visitas para conhecer o espaço
 - Informações sobre festas até 100 pessoas
 - Localização: Vargem Grande - RJ
-- Horários: 9h às 19h (sábado ou domingo)
+- Horários: 8h às 18h (sábado ou domingo)
 
 Nossa missão: Unir famílias com a energia da natureza!
 
@@ -365,6 +500,12 @@ Vibrações Positivas!""",
                 "keywords": ["espaço lindo", "lugar bonito", "ambiente lindo", "local perfeito"]
             },
 
+            # NOVA RESPOSTA PARA CONTATAR ALEXANDRE
+            "contatar_alexandre": {
+                "resposta": gerar_resposta_contatar_alexandre,  # Função dinâmica
+                "keywords": ["data", "disponível", "preço específico", "detalhes"]
+            },
+
             # NOVA RESPOSTA PARA MARCAR EVENTOS
             "marcar_evento": {
                 "resposta": """Que ótimo! Vou te ajudar a marcar seu evento!
@@ -380,7 +521,7 @@ Para marcar sua festa, é simples:
 3. Alexandre vai fazer seu orçamento personalizado
 
 Informações importantes:
-- Horário: 9h às 19h
+- Horário: 8h às 18h
 - Local: Vargem Grande - RJ
 - Apenas um evento por fim de semana
 - Ambiente familiar com energia da natureza
@@ -403,7 +544,7 @@ Cada evento é único, Alexandre faz orçamento sob medida considerando:
 - Tipo de evento
 - Número de convidados (até 100 pessoas)
 - Data escolhida (sábado ou domingo)
-- Horário: 9h às 19h
+- Horário: 8h às 18h
 
 Vantagens:
 - Apenas um evento por fim de semana
@@ -648,8 +789,11 @@ def buscar_resposta_especializada(pergunta):
         if intencao in KNOWLEDGE_BASE:
             resposta = KNOWLEDGE_BASE[intencao]["resposta"]
             
+            # Para contatar_alexandre, chama a função dinâmica
+            if intencao == "contatar_alexandre":
+                resposta = gerar_resposta_contatar_alexandre(pergunta)
             # Para despedidas e elogios, pode variar
-            if intencao == "despedida":
+            elif intencao == "despedida":
                 resposta = random.choice(DESPEDIDAS)
             elif intencao == "elogio_ia":
                 resposta = random.choice(ELOGIOS_IA_RESPOSTAS)
@@ -670,6 +814,10 @@ def processar_ollama_focado(pergunta, intencao):
         return None
     
     try:
+        # Se for pergunta que precisa de Alexandre, não usa Ollama
+        if intencao == "contatar_alexandre":
+            return gerar_resposta_contatar_alexandre(pergunta)
+        
         # Informações do espaço para contexto
         info_espaco = """
 ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
@@ -702,6 +850,10 @@ ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
             "geral": "Responda sobre o espaço de forma simples:"
         }
         
+        # Verifica se é pergunta complexa que precisa de Alexandre
+        if precisa_contatar_alexandre(pergunta):
+            return gerar_resposta_contatar_alexandre(pergunta)
+        
         prompt_base = prompts.get(intencao, prompts["geral"])
         
         prompt = f"""Você é Janine, assistente do espaço para festas familiares.
@@ -717,6 +869,7 @@ REGRAS IMPORTANTES:
 - Sempre termine com "Vibrações Positivas!"
 - Mencione WhatsApp 21 98124-6196 (Alexandre) quando relevante
 - Máximo 200 palavras
+- Se a pergunta for sobre datas, disponibilidade, preços específicos ou detalhes que você não sabe, direcione para Alexandre
 
 EXEMPLO DE LINGUAGEM SIMPLES:
 ❌ "estabelecimento com características diferenciadas"
@@ -846,7 +999,10 @@ def eh_pergunta_festa_focada(pergunta):
             "familiar", "família", "familias", "parentes",
             
             # Gerais
-            "como", "onde", "quando", "quanto", "qual", "quem", "esse", "isso", "porque"
+            "como", "onde", "quando", "quanto", "qual", "quem", "esse", "isso", "porque",
+            
+            # DATAS E DISPONIBILIDADE (agora aceita mas direciona para Alexandre)
+            "data", "datas", "disponível", "livre", "ocupado", "agenda", "calendário"
         ]
         
         # Se tem QUALQUER palavra relacionada, aceita
@@ -873,6 +1029,13 @@ def gerar_resposta_otimizada(pergunta):
         # Analisa intenção
         intencao = analisar_intencao(pergunta)
         print(f"🎯 Intenção: {intencao} para: '{pergunta[:50]}...'")
+        
+        # Se precisa contatar Alexandre, retorna direto
+        if intencao == "contatar_alexandre":
+            resposta_alexandre = gerar_resposta_contatar_alexandre(pergunta)
+            CACHE_RESPOSTAS[pergunta_hash] = resposta_alexandre
+            print("📞 Direcionado para Alexandre")
+            return resposta_alexandre
         
         # Busca na base especializada primeiro
         resposta_especializada = buscar_resposta_especializada(pergunta)
@@ -905,6 +1068,7 @@ def gerar_resposta_otimizada(pergunta):
             "capacidade": "Nosso espaço é perfeito para até 100 pessoas! Ideal para festas familiares! Vibrações Positivas!",
             "eventos": "Fazemos aniversários, batizados, chás, casamentos e formaturas! WhatsApp: 21 98124-6196. Vibrações Positivas!",
             "missao": "Nossa missão: Unir famílias para momentos especiais com a energia da natureza! Vibrações Positivas!",
+            "contatar_alexandre": "Para essa informação específica, fale com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!",
             "geral": "Sou a Janine do espaço de festas em Vargem Grande! Como posso ajudar com seu evento? Vibrações Positivas!"
         }
         
@@ -916,7 +1080,7 @@ def gerar_resposta_otimizada(pergunta):
         
     except Exception as e:
         print(f"❌ Erro na geração de resposta: {e}")
-        return "Sou a Janine do espaço de festas em Vargem Grande! Como posso ajudar com seu evento? WhatsApp: 21 98124-6196 (Alexandre). Vibrações Positivas!"
+        return "Para essa informação específica, entre em contato com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!"
 
 # Verificação Ollama
 def verificar_ollama():
@@ -946,6 +1110,7 @@ def health():
                 "Informações sobre Janine",
                 "Detalhes sobre o espaço",
                 "MARCAR EVENTOS - NOVA FUNCIONALIDADE",
+                "DIRECIONAMENTO PARA ALEXANDRE - NOVA FUNCIONALIDADE",
                 "Orçamentos via WhatsApp",
                 "Agendamento de visitas",
                 "Localização em Vargem Grande",
@@ -961,6 +1126,17 @@ def health():
                 "dias": "Sábado OU Domingo",
                 "exclusividade": "Apenas um evento por fim de semana",
                 "whatsapp": "21 98124-6196 (Alexandre)"
+            },
+            "nova_funcionalidade": {
+                "nome": "Direcionamento Inteligente para Alexandre",
+                "descricao": "IA detecta perguntas sobre datas, disponibilidade, preços específicos e detalhes técnicos, direcionando automaticamente para contato direto com Alexandre",
+                "exemplos": [
+                    "Perguntas sobre datas específicas",
+                    "Disponibilidade de agenda",
+                    "Preços detalhados",
+                    "Informações técnicas específicas",
+                    "Detalhes de contrato"
+                ]
             }
         })
     except Exception as e:
@@ -1003,7 +1179,9 @@ def chat_janine_ai():
         
         # Determina fonte
         intencao = analisar_intencao(pergunta)
-        if intencao in KNOWLEDGE_BASE:
+        if intencao == "contatar_alexandre":
+            fonte = "direcionamento_alexandre"
+        elif intencao in KNOWLEDGE_BASE:
             fonte = f"base_janine_{intencao}"
         elif verificar_ollama():
             fonte = f"ollama_janine_{intencao}"
@@ -1018,7 +1196,8 @@ def chat_janine_ai():
                     "pergunta": pergunta,
                     "intencao": intencao,
                     "fonte": fonte,
-                    "resposta_size": len(resposta)
+                    "resposta_size": len(resposta),
+                    "direcionado_alexandre": intencao == "contatar_alexandre"
                 })
                 
                 # Limita histórico
@@ -1035,14 +1214,15 @@ def chat_janine_ai():
                 "modelo": OLLAMA_MODEL,
                 "sistema": "Janine AI",
                 "especialidade": "Festas Familiares - Vargem Grande",
-                "contato": "21 98124-6196 (Alexandre)"
+                "contato": "21 98124-6196 (Alexandre)",
+                "direcionado_alexandre": intencao == "contatar_alexandre"
             }
         })
         
     except Exception as e:
         print(f"❌ Erro no chat: {e}")
         return jsonify({
-            "response": "Desculpe, tive um problema. Sou a Janine e ajudo com eventos familiares em Vargem Grande! WhatsApp: 21 98124-6196 (Alexandre). Vibrações Positivas!",
+            "response": "Para qualquer informação específica, entre em contato com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!",
             "error": "erro_temporario"
         }), 500
 
@@ -1061,6 +1241,7 @@ def estatisticas():
         # Análise do histórico
         intencoes_count = {}
         fontes_count = {}
+        alexandre_direcionamentos = 0
         
         with historico_lock:
             for conversa in HISTORICO_CONVERSAS:
@@ -1069,6 +1250,9 @@ def estatisticas():
                 
                 intencoes_count[intencao] = intencoes_count.get(intencao, 0) + 1
                 fontes_count[fonte] = fontes_count.get(fonte, 0) + 1
+                
+                if conversa.get("direcionado_alexandre", False):
+                    alexandre_direcionamentos += 1
             
             ultima_conversa = HISTORICO_CONVERSAS[-1]["timestamp"] if HISTORICO_CONVERSAS else None
             total_conversas = len(HISTORICO_CONVERSAS)
@@ -1077,9 +1261,12 @@ def estatisticas():
             "total_conversas": total_conversas,
             "intencoes_populares": dict(sorted(intencoes_count.items(), key=lambda x: x[1], reverse=True)),
             "fontes_utilizadas": fontes_count,
+            "direcionamentos_alexandre": alexandre_direcionamentos,
+            "percentual_alexandre": f"{(alexandre_direcionamentos/total_conversas*100):.1f}%" if total_conversas > 0 else "0%",
             "sistema": "Janine AI",
             "especialidade": "Festas Familiares - Vargem Grande",
-            "ultima_conversa": ultima_conversa
+            "ultima_conversa": ultima_conversa,
+            "nova_funcionalidade": "Direcionamento inteligente para Alexandre funcionando!"
         })
         
     except Exception as e:
@@ -1092,7 +1279,8 @@ def ping():
         "timestamp": datetime.now().isoformat(),
         "sistema": "Janine AI - Auto-Ping Ativo",
         "especialidade": "Festas Familiares - Vargem Grande",
-        "contato": "WhatsApp: 21 98124-6196 (Alexandre)"
+        "contato": "WhatsApp: 21 98124-6196 (Alexandre)",
+        "funcionalidade": "Direcionamento para Alexandre ativo!"
     })
 
 @app.route('/', methods=['GET'])
@@ -1117,7 +1305,8 @@ def home():
             .user { background: #e3f2fd; text-align: right; }
             .bot { background: #f1f8e9; }
             .info { font-size: 12px; color: #666; text-align: center; margin: 20px 0; }
-            .nova { background: #fffbf0; border: 2px solid #ffc107; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
+            .nova { background: #fff3cd; border: 2px solid #ffc107; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
+            .alexandre { background: #d1ecf1; border: 2px solid #17a2b8; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
         </style>
     </head>
     <body>
@@ -1128,21 +1317,33 @@ def home():
                 <p><strong>WhatsApp:</strong> 21 98124-6196 (Alexandre)</p>
             </div>
             
+            <div class="alexandre">
+                <strong>🆕 NOVIDADE!</strong><br>
+                A Janine agora detecta automaticamente quando você precisa falar com Alexandre!<br>
+                <strong>Experimente perguntar sobre:</strong><br>
+                - "Que datas estão disponíveis?"<br>
+                - "Quanto custa exatamente?"<br>
+                - "Posso marcar para o dia 15?"
+            </div>
+            
             <div class="nova">
-                <strong>NOVO!</strong> Agora a Janine entende quando você quer marcar um evento!<br>
-                Experimente: "Quero marcar um evento" ou "Vou fazer uma festa"
+                <strong>FUNCIONALIDADES:</strong><br>
+                ✅ Marcar eventos<br>
+                ✅ Direcionamento inteligente para Alexandre<br>
+                ✅ Respostas sobre o espaço
             </div>
             
             <div id="chat-box" class="chat-box">
                 <div class="message bot">
                     Olá! Sou a Janine!<br><br>
                     Ajudo com informações sobre nosso espaço para festas familiares em Vargem Grande!<br><br>
+                    <strong>Agora com direcionamento inteligente para Alexandre!</strong><br><br>
                     <strong>Vibrações Positivas!</strong>
                 </div>
             </div>
             
             <div class="input-area">
-                <input type="text" id="message-input" placeholder="Digite sua pergunta sobre eventos familiares..." onkeypress="if(event.key==='Enter') enviarMensagem()">
+                <input type="text" id="message-input" placeholder="Pergunte sobre datas, eventos, orçamentos..." onkeypress="if(event.key==='Enter') enviarMensagem()">
                 <button onclick="enviarMensagem()">Enviar</button>
             </div>
             
@@ -1175,67 +1376,13 @@ def home():
                 
                 const data = await response.json();
                 
-                // Adiciona resposta da IA
-                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> ${data.response.replace(/\n/g, '<br>')}</div>`;
+                // Adiciona resposta da IA com indicador se foi direcionado para Alexandre
+                let responseClass = 'bot';
+                if (data.metadata && data.metadata.direcionado_alexandre) {
+                    responseClass = 'bot alexandre';
+                }
+                
+                chatBox.innerHTML += `<div class="message ${responseClass}"><strong>Janine:</strong> ${data.response.replace(/\n/g, '<br>')}</div>`;
                 
             } catch (error) {
-                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> Erro de conexão. Tente novamente! Vibrações Positivas!</div>`;
-            }
-            
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-        </script>
-    </body>
-    </html>
-    """
-    return render_template_string(html)
-
-if __name__ == '__main__':
-    print("Janine AI - Espaço para Festas Familiares")
-    print("=" * 70)
-    print("IA: Janine")  
-    print("Local: Vargem Grande - Rio de Janeiro")
-    print("Endereço: Estrada do Cabungui, 772")
-    print("WhatsApp: 21 98124-6196 (Alexandre)")
-    print("Capacidade: Até 100 convidados")
-    print("Horários: Das 8h às 18h (sábado ou domingo)")
-    print("Especialidade: Festas Familiares")
-    print("Missão: Unir famílias com energia da natureza")
-    print("=" * 70)
-    
-    # Carrega base de conhecimento
-    try:
-        carregar_conhecimento_especializado()
-    except Exception as e:
-        print(f"⚠️ Erro ao carregar conhecimento: {e}")
-    
-    # Status
-    if verificar_ollama():
-        print("✅ Ollama CONECTADO - Modo Híbrido")
-    else:
-        print("⚠️ Ollama offline - Modo Base Própria")
-    
-    print("MELHORIAS APLICADAS:")
-    print("   ✅ NOVA FUNCIONALIDADE: Marcar Eventos")
-    print("   ✅ Textos SIMPLIFICADOS e CLAROS")
-    print("   ✅ Palavras fáceis de entender")
-    print("   ✅ Frases mais diretas")
-    print("   ✅ Reconhece várias formas de pedir evento:")
-    print("      - 'Quero marcar um evento'")
-    print("      - 'Vou querer um evento'")
-    print("      - 'Preciso fazer uma festa'")
-    print("      - 'Gostaria de agendar'")
-    print("      - E muitas outras variações!")
-    print("   ✅ Interface web atualizada")
-    print("🔄 Auto-ping ativo (5min)")
-    print("🌐 Interface web disponível em /")
-    print("📊 Estatísticas em /estatisticas")
-    print("🚀 Servidor iniciando na porta 5001...")
-    print("=" * 70)
-    
-    app.run(
-        host='0.0.0.0',
-        port=5001,
-        debug=False,
-        threaded=True
-    )
+                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> Erro de conexão. Para qualquer dúvida, chame Alexandre: 21 98124-6196! Vibrações
