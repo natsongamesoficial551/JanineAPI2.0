@@ -795,8 +795,6 @@ def buscar_resposta_especializada(pergunta):
             # Para despedidas e elogios, pode variar
             elif intencao == "despedida":
                 resposta = random.choice(DESPEDIDAS)
-            elif intencao == "elogio_ia":
-                resposta = random.choice(ELOGIOS_IA_RESPOSTAS)
             elif intencao == "elogio_espaco":
                 resposta = random.choice(ELOGIOS_ESPACO_RESPOSTAS)
                 
@@ -1385,4 +1383,38 @@ def home():
                 chatBox.innerHTML += `<div class="message ${responseClass}"><strong>Janine:</strong> ${data.response.replace(/\n/g, '<br>')}</div>`;
                 
             } catch (error) {
-                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> Erro de conexão. Para qualquer dúvida, chame Alexandre: 21 98124-6196! Vibrações
+                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> Erro de conexão. Para qualquer dúvida, chame Alexandre: 21 98124-6196! Vibrações Positivas!</div>`;
+            }
+            
+            // Scroll para baixo
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        </script>
+    </body>
+    </html>
+    """
+    return render_template_string(html)
+
+# Inicialização
+if __name__ == '__main__':
+    print("🚀 Iniciando Janine AI - Espaço para Festas Familiares")
+    print("🏠 Vargem Grande - Rio de Janeiro")
+    print("📱 WhatsApp: 21 98124-6196 (Alexandre)")
+    print("✨ Vibrações Positivas!")
+    print()
+    
+    # Carrega base de conhecimento
+    carregar_conhecimento_especializado()
+    
+    # Configuração do servidor
+    port = int(os.environ.get('PORT', 5000))
+    
+    print(f"🌐 Servidor iniciado na porta {port}")
+    print("🤖 Sistema Janine AI online!")
+    print("🎯 NOVA FUNCIONALIDADE: Direcionamento para Alexandre ativo!")
+    print()
+    
+    app.run(host='0.0.0.0', port=port, debug=False)
+        ia":
+                resposta = random.choice(ELOGIOS_IA_RESPOSTAS)
+            elif intencao == "elogio_
