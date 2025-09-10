@@ -76,145 +76,61 @@ ELOGIOS_ESPACO_RESPOSTAS = [
     "Que alegria! Nosso espaço tem essa magia!"
 ]
 
-# NOVA FUNÇÃO: Detecta perguntas que precisam de Alexandre
-def precisa_contatar_alexandre(pergunta):
-    """Detecta perguntas que a IA não pode responder e precisam de Alexandre"""
-    try:
-        p = pergunta.lower().strip()
-        
-        # Palavras-chave que indicam necessidade de contato direto
-        palavras_alexandre = [
-            # Datas específicas
-            "data", "datas", "disponível", "disponivel", "livre", "ocupado",
-            "agenda", "agendado", "calendário", "calendario", "quando posso",
-            "que dia", "dia disponível", "fim de semana livre",
-            "próximo sábado", "proximo sabado", "próximo domingo", "proximo domingo",
-            "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-            "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
-            "2024", "2025", "2026",
-            
-            # Disponibilidade específica
-            "está livre", "esta livre", "tem vaga", "posso marcar para",
-            "quero marcar para", "reservar para", "agendar para",
-            "dia 15", "dia 20", "dia 25", "dia 30", "dia 31",
-            
-            # Detalhes específicos que só Alexandre sabe
-            "contrato", "clausulas", "cláusulas", "pagamento", "forma de pagamento",
-            "entrada", "sinal", "parcelas", "desconto", "promoção", "promocao",
-            "tabela completa", "lista de preços", "preço exato", "valor exato",
-            
-            # Personalizações específicas
-            "posso trazer", "pode trazer", "decoração", "decoracao", "som",
-            "equipamento", "mesa", "cadeira", "banheiro", "cozinha",
-            "estacionamento", "segurança", "energia elétrica", "eletrica",
-            
-            # Informações técnicas
-            "regulamento", "regras específicas", "regras especificas",
-            "documentos", "alvará", "alvara", "licença", "licenca",
-            "bombeiros", "vigilância", "vigilancia"
-        ]
-        
-        # Se tem qualquer palavra que precisa de Alexandre
-        if any(palavra in p for palavra in palavras_alexandre):
-            return True
-        
-        # Perguntas muito específicas (mais de 15 palavras sobre detalhes)
-        if len(p.split()) > 15:
-            palavras_detalhadas = ["como", "quando", "onde", "quanto", "qual", "posso", "pode"]
-            if any(palavra in p for palavra in palavras_detalhadas):
-                return True
-        
-        return False
-        
-    except Exception as e:
-        print(f"❌ Erro na detecção Alexandre: {e}")
-        return False
+# NOVA SEÇÃO: Respostas de fallback quando não souber responder
+FALLBACK_ALEXANDRE_RESPOSTAS = [
+    """Desculpe, não consegui entender sua pergunta completamente.
 
-# Resposta padrão para contatar Alexandre
-def gerar_resposta_contatar_alexandre(pergunta):
-    """Gera resposta direcionando para Alexandre"""
-    try:
-        p = pergunta.lower().strip()
-        
-        # Respostas específicas baseadas no tipo de pergunta
-        if any(palavra in p for palavra in ["data", "datas", "disponível", "livre", "agenda", "quando"]):
-            return """Para saber datas disponíveis, entre em contato diretamente com Alexandre!
+Para informações mais específicas ou esclarecimentos, entre em contato diretamente com Alexandre:
 
 WhatsApp: 21 98124-6196
 
-Alexandre tem a agenda completa e pode:
-- Verificar datas livres
-- Confirmar disponibilidade
-- Fazer sua reserva na hora
+Alexandre pode ajudar com:
+- Dúvidas específicas sobre o espaço
+- Orçamentos detalhados
+- Agendamentos personalizados
+- Informações técnicas
+- Qualquer questão que eu não consegui responder
 
-Ele responde rapidamente e vai cuidar de tudo para você!
+Vibrações Positivas!""",
 
-Vibrações Positivas!"""
+    """Essa pergunta é bem específica! 
 
-        elif any(palavra in p for palavra in ["preço", "valor", "pagamento", "contrato", "desconto"]):
-            return """Para informações detalhadas sobre valores e pagamento, fale com Alexandre!
-
-WhatsApp: 21 98124-6196
-
-Alexandre vai explicar:
-- Valores completos
-- Formas de pagamento
-- Condições especiais
-- Tudo sobre o contrato
-
-Cada evento é único, então ele faz um atendimento personalizado!
-
-Vibrações Positivas!"""
-
-        elif any(palavra in p for palavra in ["trazer", "decoração", "som", "equipamento"]):
-            return """Para detalhes sobre o que pode trazer e estrutura disponível, converse com Alexandre!
+Para uma resposta completa e detalhada, recomendo falar diretamente com Alexandre:
 
 WhatsApp: 21 98124-6196
 
-Alexandre vai esclarecer:
-- O que você pode trazer
-- Equipamentos disponíveis
-- Regras do espaço
-- Estrutura completa
+Alexandre é quem melhor pode esclarecer:
+- Detalhes técnicos do espaço
+- Situações específicas
+- Dúvidas personalizadas
+- Informações atualizadas
 
-Ele conhece todos os detalhes e vai te orientar!
+Ele responde rapidamente no WhatsApp!
 
-Vibrações Positivas!"""
+Vibrações Positivas!""",
 
-        else:
-            # Resposta geral para outras perguntas específicas
-            return """Para essa informação específica, é melhor falar diretamente com Alexandre!
+    """Opa! Essa pergunta precisa de uma atenção especial.
 
-WhatsApp: 21 98124-6196
-
-Alexandre tem todas as informações detalhadas e pode:
-- Responder suas dúvidas específicas
-- Dar orientações personalizadas
-- Cuidar de todos os detalhes
-
-Ele é super atencioso e vai te ajudar com tudo!
-
-Vibrações Positivas!"""
-            
-    except Exception as e:
-        print(f"❌ Erro na resposta Alexandre: {e}")
-        return """Para essa informação, entre em contato com Alexandre!
+O melhor é conversar diretamente com Alexandre:
 
 WhatsApp: 21 98124-6196
 
-Ele tem todas as informações e vai te ajudar!
+Alexandre pode dar informações:
+- Mais detalhadas e atualizadas
+- Personalizadas para seu caso
+- Com toda experiência dele
+- Esclarecendo qualquer dúvida
+
+Entre em contato! Ele vai adorar ajudar!
 
 Vibrações Positivas!"""
+]
 
 # Sistema de análise de intenção - Janine Melhorado
 def analisar_intencao(pergunta):
     """Analisa a intenção das perguntas sobre o espaço de festas"""
     try:
         p = pergunta.lower().strip()
-        
-        # PRIMEIRA VERIFICAÇÃO: Se precisa contatar Alexandre
-        if precisa_contatar_alexandre(pergunta):
-            return "contatar_alexandre"
         
         intencoes = {
             "saudacao": 0,
@@ -231,12 +147,21 @@ def analisar_intencao(pergunta):
             "capacidade": 0,
             "eventos": 0,
             "missao": 0,
-            "marcar_evento": 0,
-            "contatar_alexandre": 0,  # NOVA INTENÇÃO
+            "marcar_evento": 0,  # NOVA INTENÇÃO
+            "duvida_especifica": 0,  # NOVA INTENÇÃO para fallback
             "geral": 0
         }
         
         # PALAVRAS-CHAVE EXPANDIDAS
+        
+        # NOVA CATEGORIA: Dúvida Específica (para fallback Alexandre)
+        palavras_duvida_especifica = [
+            "não entendi", "não sei", "dúvida", "duvida", "como assim", "explica melhor",
+            "não compreendi", "confuso", "não ficou claro", "pode explicar",
+            "preciso saber mais", "quero detalhes", "informação específica",
+            "situação especial", "caso particular", "minha situação",
+            "não consegui entender", "não captei", "perdido", "sem entender"
+        ]
         
         # NOVA CATEGORIA: Marcar Evento
         palavras_marcar_evento = [
@@ -346,6 +271,11 @@ def analisar_intencao(pergunta):
         
         # CONTAGEM COM PESOS
         
+        # PRIORIDADE para dúvidas específicas (fallback)
+        for palavra in palavras_duvida_especifica:
+            if palavra in p:
+                intencoes["duvida_especifica"] += 7
+        
         # PRIORIDADE MÁXIMA para marcar evento
         for palavra in palavras_marcar_evento:
             if palavra in p:
@@ -416,6 +346,62 @@ def analisar_intencao(pergunta):
     except Exception as e:
         print(f"❌ Erro na análise de intenção: {e}")
         return "geral"
+
+# NOVA FUNÇÃO: Detecta se é pergunta muito complexa ou específica
+def eh_pergunta_complexa_para_alexandre(pergunta):
+    """Detecta perguntas que devem ser direcionadas para Alexandre"""
+    try:
+        p = pergunta.lower().strip()
+        
+        # Indicadores de complexidade
+        indicadores_complexidade = [
+            # Perguntas muito específicas
+            "específico", "especifico", "detalhado", "detalhadamente",
+            "exatamente", "precisamente", "tecnicamente", "técnico",
+            
+            # Situações particulares
+            "meu caso", "minha situação", "situação especial", "caso particular",
+            "especificamente", "personalizado", "customizado",
+            
+            # Perguntas técnicas
+            "como funciona exatamente", "qual o processo", "etapas",
+            "documentação", "contrato", "legal", "jurídico",
+            
+            # Emergências ou urgência
+            "urgente", "emergência", "rápido", "hoje", "amanhã",
+            "preciso agora", "imediato",
+            
+            # Negociações
+            "desconto", "promoção", "negociar", "negociação", "flexível",
+            "condições especiais", "facilitar pagamento",
+            
+            # Problemas ou reclamações
+            "problema", "reclamação", "errado", "não funcionou",
+            "dificuldade", "complicado",
+            
+            # Perguntas sobre outros serviços
+            "decoração", "comida", "bebida", "música", "som", "buffet",
+            "fornecedores", "indicação", "parceiros"
+        ]
+        
+        # Perguntas muito longas (mais de 100 caracteres) geralmente são complexas
+        if len(pergunta) > 100:
+            return True
+        
+        # Perguntas com múltiplas interrogações
+        if pergunta.count('?') > 2:
+            return True
+        
+        # Verifica indicadores de complexidade
+        for indicador in indicadores_complexidade:
+            if indicador in p:
+                return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"❌ Erro na detecção de complexidade: {e}")
+        return False
 
 # Base de conhecimento - Janine EXPANDIDA E SIMPLIFICADA
 def carregar_conhecimento_especializado():
@@ -500,12 +486,6 @@ Vibrações Positivas!""",
                 "keywords": ["espaço lindo", "lugar bonito", "ambiente lindo", "local perfeito"]
             },
 
-            # NOVA RESPOSTA PARA CONTATAR ALEXANDRE
-            "contatar_alexandre": {
-                "resposta": gerar_resposta_contatar_alexandre,  # Função dinâmica
-                "keywords": ["data", "disponível", "preço específico", "detalhes"]
-            },
-
             # NOVA RESPOSTA PARA MARCAR EVENTOS
             "marcar_evento": {
                 "resposta": """Que ótimo! Vou te ajudar a marcar seu evento!
@@ -532,6 +512,12 @@ Chame Alexandre agora: 21 98124-6196
 
 Vibrações Positivas!""",
                 "keywords": ["marcar evento", "quero evento", "fazer festa", "agendar", "reservar"]
+            },
+            
+            # NOVA RESPOSTA PARA DÚVIDAS ESPECÍFICAS (fallback Alexandre)
+            "duvida_especifica": {
+                "resposta": random.choice(FALLBACK_ALEXANDRE_RESPOSTAS),
+                "keywords": ["não entendi", "dúvida", "explica melhor", "não ficou claro", "confuso"]
             },
             
             "orcamento": {
@@ -789,16 +775,15 @@ def buscar_resposta_especializada(pergunta):
         if intencao in KNOWLEDGE_BASE:
             resposta = KNOWLEDGE_BASE[intencao]["resposta"]
             
-            # Para contatar_alexandre, chama a função dinâmica
-            if intencao == "contatar_alexandre":
-                resposta = gerar_resposta_contatar_alexandre(pergunta)
             # Para despedidas e elogios, pode variar
-            elif intencao == "despedida":
+            if intencao == "despedida":
                 resposta = random.choice(DESPEDIDAS)
-            elif intencao == "elogio_espaco":
-                resposta = random.choice(ELOGIOS_ESPACO_RESPOSTAS)
             elif intencao == "elogio_ia":
                 resposta = random.choice(ELOGIOS_IA_RESPOSTAS)
+            elif intencao == "elogio_espaco":
+                resposta = random.choice(ELOGIOS_ESPACO_RESPOSTAS)
+            elif intencao == "duvida_especifica":
+                resposta = random.choice(FALLBACK_ALEXANDRE_RESPOSTAS)
                 
             return resposta
         
@@ -814,10 +799,6 @@ def processar_ollama_focado(pergunta, intencao):
         return None
     
     try:
-        # Se for pergunta que precisa de Alexandre, não usa Ollama
-        if intencao == "contatar_alexandre":
-            return gerar_resposta_contatar_alexandre(pergunta)
-        
         # Informações do espaço para contexto
         info_espaco = """
 ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
@@ -839,6 +820,7 @@ ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
             "elogio_ia": "Responda positivamente ao elogio:",
             "elogio_espaco": "Responda ao elogio sobre o espaço:",
             "marcar_evento": "Explique como marcar evento de forma simples, direcionando para WhatsApp:",
+            "duvida_especifica": "Direcione educadamente para Alexandre no WhatsApp:",
             "orcamento": "Responda sobre orçamentos de forma simples:",
             "contato": "Forneça informações de contato de forma simples:",
             "visita": "Explique sobre visitas de forma simples:",
@@ -849,10 +831,6 @@ ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
             "missao": "Explique nossa missão de forma simples:",
             "geral": "Responda sobre o espaço de forma simples:"
         }
-        
-        # Verifica se é pergunta complexa que precisa de Alexandre
-        if precisa_contatar_alexandre(pergunta):
-            return gerar_resposta_contatar_alexandre(pergunta)
         
         prompt_base = prompts.get(intencao, prompts["geral"])
         
@@ -869,7 +847,7 @@ REGRAS IMPORTANTES:
 - Sempre termine com "Vibrações Positivas!"
 - Mencione WhatsApp 21 98124-6196 (Alexandre) quando relevante
 - Máximo 200 palavras
-- Se a pergunta for sobre datas, disponibilidade, preços específicos ou detalhes que você não sabe, direcione para Alexandre
+- Se não souber responder algo específico, direcione para Alexandre
 
 EXEMPLO DE LINGUAGEM SIMPLES:
 ❌ "estabelecimento com características diferenciadas"
@@ -998,11 +976,12 @@ def eh_pergunta_festa_focada(pergunta):
             # Família
             "familiar", "família", "familias", "parentes",
             
-            # Gerais
-            "como", "onde", "quando", "quanto", "qual", "quem", "esse", "isso", "porque",
+            # Dúvidas e complexidade
+            "não entendi", "dúvida", "explica melhor", "não ficou claro", "confuso",
+            "específico", "detalhado", "técnico", "problema", "urgente",
             
-            # DATAS E DISPONIBILIDADE (agora aceita mas direciona para Alexandre)
-            "data", "datas", "disponível", "livre", "ocupado", "agenda", "calendário"
+            # Gerais
+            "como", "onde", "quando", "quanto", "qual", "quem", "esse", "isso", "porque"
         ]
         
         # Se tem QUALQUER palavra relacionada, aceita
@@ -1014,6 +993,37 @@ def eh_pergunta_festa_focada(pergunta):
     except Exception as e:
         print(f"❌ Erro na verificação: {e}")
         return True  # Em caso de erro, aceita a pergunta
+
+# NOVA FUNÇÃO: Resposta inteligente para fallback Alexandre
+def gerar_resposta_fallback_alexandre(pergunta, intencao):
+    """Gera resposta direcionando para Alexandre quando não souber responder"""
+    try:
+        # Se é pergunta complexa, usa fallback específico
+        if eh_pergunta_complexa_para_alexandre(pergunta):
+            return random.choice(FALLBACK_ALEXANDRE_RESPOSTAS)
+        
+        # Resposta padrão quando não sabe responder
+        resposta_base = """Não consegui responder sua pergunta completamente.
+
+Para informações mais detalhadas, converse diretamente com Alexandre:
+
+WhatsApp: 21 98124-6196
+
+Alexandre pode esclarecer melhor:
+- Dúvidas específicas sobre o espaço
+- Detalhes técnicos
+- Situações particulares
+- Orçamentos personalizados
+
+Ele responde rapidamente!
+
+Vibrações Positivas!"""
+        
+        return resposta_base
+        
+    except Exception as e:
+        print(f"❌ Erro no fallback Alexandre: {e}")
+        return random.choice(FALLBACK_ALEXANDRE_RESPOSTAS)
 
 # Gerador principal melhorado com tratamento de erros
 def gerar_resposta_otimizada(pergunta):
@@ -1030,11 +1040,11 @@ def gerar_resposta_otimizada(pergunta):
         intencao = analisar_intencao(pergunta)
         print(f"🎯 Intenção: {intencao} para: '{pergunta[:50]}...'")
         
-        # Se precisa contatar Alexandre, retorna direto
-        if intencao == "contatar_alexandre":
-            resposta_alexandre = gerar_resposta_contatar_alexandre(pergunta)
+        # Verifica se é pergunta complexa para Alexandre
+        if eh_pergunta_complexa_para_alexandre(pergunta):
+            resposta_alexandre = gerar_resposta_fallback_alexandre(pergunta, intencao)
             CACHE_RESPOSTAS[pergunta_hash] = resposta_alexandre
-            print("📞 Direcionado para Alexandre")
+            print("🔄 Direcionado para Alexandre (pergunta complexa)")
             return resposta_alexandre
         
         # Busca na base especializada primeiro
@@ -1060,6 +1070,7 @@ def gerar_resposta_otimizada(pergunta):
             "elogio_ia": "Obrigada! Fico feliz em ajudar! Vibrações Positivas!",
             "elogio_espaco": "Que bom que gostou! Nosso espaço em Vargem Grande é muito especial! Vibrações Positivas!",
             "marcar_evento": "Que legal! Para marcar sua festa é fácil: Chame Alexandre no WhatsApp 21 98124-6196. Ele vai fazer seu orçamento e cuidar de tudo! Vibrações Positivas!",
+            "duvida_especifica": gerar_resposta_fallback_alexandre(pergunta, intencao),
             "orcamento": "Para orçamento chame Alexandre no WhatsApp: 21 98124-6196. Cada festa é única! Vibrações Positivas!",
             "contato": "WhatsApp: 21 98124-6196 (Alexandre). Ele cuida de orçamentos e visitas! Vibrações Positivas!",
             "visita": "Para visitar nosso espaço chame Alexandre: 21 98124-6196. Você vai amar a energia do lugar! Vibrações Positivas!",
@@ -1068,11 +1079,10 @@ def gerar_resposta_otimizada(pergunta):
             "capacidade": "Nosso espaço é perfeito para até 100 pessoas! Ideal para festas familiares! Vibrações Positivas!",
             "eventos": "Fazemos aniversários, batizados, chás, casamentos e formaturas! WhatsApp: 21 98124-6196. Vibrações Positivas!",
             "missao": "Nossa missão: Unir famílias para momentos especiais com a energia da natureza! Vibrações Positivas!",
-            "contatar_alexandre": "Para essa informação específica, fale com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!",
-            "geral": "Sou a Janine do espaço de festas em Vargem Grande! Como posso ajudar com seu evento? Vibrações Positivas!"
+            "geral": gerar_resposta_fallback_alexandre(pergunta, intencao)  # MUDANÇA: fallback para Alexandre
         }
         
-        resposta_fallback = fallbacks.get(intencao, fallbacks["geral"])
+        resposta_fallback = fallbacks.get(intencao, gerar_resposta_fallback_alexandre(pergunta, intencao))
         
         CACHE_RESPOSTAS[pergunta_hash] = resposta_fallback
         print("⚠️ Resposta fallback melhorada")
@@ -1080,7 +1090,20 @@ def gerar_resposta_otimizada(pergunta):
         
     except Exception as e:
         print(f"❌ Erro na geração de resposta: {e}")
-        return "Para essa informação específica, entre em contato com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!"
+        # MUDANÇA: Em caso de erro grave, direciona para Alexandre
+        return """Tive um problema técnico.
+
+Para não perder tempo, converse diretamente com Alexandre:
+
+WhatsApp: 21 98124-6196
+
+Alexandre pode ajudar com tudo sobre o espaço:
+- Orçamentos
+- Agendamentos
+- Informações detalhadas
+- Qualquer dúvida
+
+Vibrações Positivas!"""
 
 # Verificação Ollama
 def verificar_ollama():
@@ -1110,14 +1133,14 @@ def health():
                 "Informações sobre Janine",
                 "Detalhes sobre o espaço",
                 "MARCAR EVENTOS - NOVA FUNCIONALIDADE",
-                "DIRECIONAMENTO PARA ALEXANDRE - NOVA FUNCIONALIDADE",
                 "Orçamentos via WhatsApp",
                 "Agendamento de visitas",
                 "Localização em Vargem Grande",
                 "Horários de funcionamento",
                 "Capacidade até 100 convidados",
                 "Tipos de eventos familiares",
-                "Missão e filosofia"
+                "Missão e filosofia",
+                "FALLBACK ALEXANDRE - Direciona dúvidas complexas"
             ],
             "info_espaco": {
                 "endereco": "Estrada do Cabungui, 772, Vargem Grande - RJ",
@@ -1127,16 +1150,11 @@ def health():
                 "exclusividade": "Apenas um evento por fim de semana",
                 "whatsapp": "21 98124-6196 (Alexandre)"
             },
-            "nova_funcionalidade": {
-                "nome": "Direcionamento Inteligente para Alexandre",
-                "descricao": "IA detecta perguntas sobre datas, disponibilidade, preços específicos e detalhes técnicos, direcionando automaticamente para contato direto com Alexandre",
-                "exemplos": [
-                    "Perguntas sobre datas específicas",
-                    "Disponibilidade de agenda",
-                    "Preços detalhados",
-                    "Informações técnicas específicas",
-                    "Detalhes de contrato"
-                ]
+            "melhorias_v2": {
+                "fallback_alexandre": "Direciona dúvidas complexas para Alexandre",
+                "deteccao_complexidade": "Identifica perguntas que precisam de atenção humana",
+                "respostas_variadas": "Múltiplas opções de resposta para fallback",
+                "contexto_expandido": "Melhor compreensão de situações específicas"
             }
         })
     except Exception as e:
@@ -1164,13 +1182,27 @@ def chat_janine_ai():
         
         # Filtro para temas relacionados a festas/eventos - SIMPLIFICADO
         if not eh_pergunta_festa_focada(pergunta):
-            resposta_filtro = "Olá! Sou a Janine do espaço para festas familiares em Vargem Grande! Posso ajudar com: orçamentos, visitas, localização, horários e tipos de eventos. WhatsApp: 21 98124-6196 (Alexandre). Como posso ajudar com seu evento? Vibrações Positivas!"
+            resposta_filtro = """Olá! Sou a Janine do espaço para festas familiares em Vargem Grande! 
+
+Posso ajudar com:
+- Orçamentos e agendamentos
+- Visitas ao espaço
+- Localização e horários
+- Tipos de eventos familiares
+
+Para outras informações, converse com Alexandre:
+WhatsApp: 21 98124-6196
+
+Como posso ajudar com seu evento?
+
+Vibrações Positivas!"""
             return jsonify({
                 "response": resposta_filtro,
                 "metadata": {
                     "fonte": "filtro_janine_ai", 
                     "tipo": "especialidade_limitada",
-                    "sistema": "Janine AI"
+                    "sistema": "Janine AI",
+                    "fallback_disponivel": True
                 }
             })
         
@@ -1179,14 +1211,22 @@ def chat_janine_ai():
         
         # Determina fonte
         intencao = analisar_intencao(pergunta)
-        if intencao == "contatar_alexandre":
-            fonte = "direcionamento_alexandre"
-        elif intencao in KNOWLEDGE_BASE:
+        
+        # NOVA LÓGICA: Identifica se foi direcionado para Alexandre
+        direcionado_alexandre = False
+        if any(fallback_text in resposta for fallback_text in ["Alexandre", "21 98124-6196", "não consegui", "pergunta específica"]):
+            if intencao == "duvida_especifica" or eh_pergunta_complexa_para_alexandre(pergunta):
+                direcionado_alexandre = True
+        
+        if intencao in KNOWLEDGE_BASE:
             fonte = f"base_janine_{intencao}"
         elif verificar_ollama():
             fonte = f"ollama_janine_{intencao}"
         else:
             fonte = f"fallback_janine_{intencao}"
+        
+        if direcionado_alexandre:
+            fonte += "_alexandre_redirect"
         
         # Histórico para análise com thread safety
         try:
@@ -1197,7 +1237,8 @@ def chat_janine_ai():
                     "intencao": intencao,
                     "fonte": fonte,
                     "resposta_size": len(resposta),
-                    "direcionado_alexandre": intencao == "contatar_alexandre"
+                    "direcionado_alexandre": direcionado_alexandre,
+                    "pergunta_complexa": eh_pergunta_complexa_para_alexandre(pergunta)
                 })
                 
                 # Limita histórico
@@ -1215,15 +1256,28 @@ def chat_janine_ai():
                 "sistema": "Janine AI",
                 "especialidade": "Festas Familiares - Vargem Grande",
                 "contato": "21 98124-6196 (Alexandre)",
-                "direcionado_alexandre": intencao == "contatar_alexandre"
+                "direcionado_alexandre": direcionado_alexandre,
+                "pergunta_complexa": eh_pergunta_complexa_para_alexandre(pergunta)
             }
         })
         
     except Exception as e:
         print(f"❌ Erro no chat: {e}")
         return jsonify({
-            "response": "Para qualquer informação específica, entre em contato com Alexandre no WhatsApp: 21 98124-6196. Ele tem todos os detalhes! Vibrações Positivas!",
-            "error": "erro_temporario"
+            "response": """Tive um problema técnico.
+
+Para não perder tempo, converse diretamente com Alexandre:
+
+WhatsApp: 21 98124-6196
+
+Alexandre pode esclarecer qualquer dúvida sobre o espaço!
+
+Vibrações Positivas!""",
+            "error": "erro_temporario",
+            "metadata": {
+                "sistema": "Janine AI",
+                "fallback": "alexandre_emergency"
+            }
         }), 500
 
 @app.route('/estatisticas', methods=['GET'])
@@ -1241,7 +1295,8 @@ def estatisticas():
         # Análise do histórico
         intencoes_count = {}
         fontes_count = {}
-        alexandre_direcionamentos = 0
+        alexandre_redirects = 0
+        perguntas_complexas = 0
         
         with historico_lock:
             for conversa in HISTORICO_CONVERSAS:
@@ -1252,7 +1307,9 @@ def estatisticas():
                 fontes_count[fonte] = fontes_count.get(fonte, 0) + 1
                 
                 if conversa.get("direcionado_alexandre", False):
-                    alexandre_direcionamentos += 1
+                    alexandre_redirects += 1
+                if conversa.get("pergunta_complexa", False):
+                    perguntas_complexas += 1
             
             ultima_conversa = HISTORICO_CONVERSAS[-1]["timestamp"] if HISTORICO_CONVERSAS else None
             total_conversas = len(HISTORICO_CONVERSAS)
@@ -1261,12 +1318,18 @@ def estatisticas():
             "total_conversas": total_conversas,
             "intencoes_populares": dict(sorted(intencoes_count.items(), key=lambda x: x[1], reverse=True)),
             "fontes_utilizadas": fontes_count,
-            "direcionamentos_alexandre": alexandre_direcionamentos,
-            "percentual_alexandre": f"{(alexandre_direcionamentos/total_conversas*100):.1f}%" if total_conversas > 0 else "0%",
+            "alexandre_redirects": alexandre_redirects,
+            "perguntas_complexas": perguntas_complexas,
+            "taxa_redirect_alexandre": round((alexandre_redirects / total_conversas) * 100, 2) if total_conversas > 0 else 0,
             "sistema": "Janine AI",
             "especialidade": "Festas Familiares - Vargem Grande",
             "ultima_conversa": ultima_conversa,
-            "nova_funcionalidade": "Direcionamento inteligente para Alexandre funcionando!"
+            "melhorias_ativas": [
+                "Fallback inteligente para Alexandre",
+                "Detecção de perguntas complexas",
+                "Redirecionamento automático",
+                "Respostas variadas para fallback"
+            ]
         })
         
     except Exception as e:
@@ -1280,7 +1343,7 @@ def ping():
         "sistema": "Janine AI - Auto-Ping Ativo",
         "especialidade": "Festas Familiares - Vargem Grande",
         "contato": "WhatsApp: 21 98124-6196 (Alexandre)",
-        "funcionalidade": "Direcionamento para Alexandre ativo!"
+        "versao": "2.0 - Fallback Alexandre Ativo"
     })
 
 @app.route('/', methods=['GET'])
@@ -1304,46 +1367,45 @@ def home():
             .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
             .user { background: #e3f2fd; text-align: right; }
             .bot { background: #f1f8e9; }
+            .bot.alexandre { background: #fff3cd; border-left: 4px solid #ffc107; }
             .info { font-size: 12px; color: #666; text-align: center; margin: 20px 0; }
-            .nova { background: #fff3cd; border: 2px solid #ffc107; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
-            .alexandre { background: #d1ecf1; border: 2px solid #17a2b8; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
+            .nova { background: #fffbf0; border: 2px solid #ffc107; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
+            .v2 { background: #f0fff0; border: 2px solid #28a745; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center; }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>Janine AI</h1>
+                <h1>Janine AI v2.0</h1>
                 <p>Espaço para Festas Familiares - Vargem Grande</p>
                 <p><strong>WhatsApp:</strong> 21 98124-6196 (Alexandre)</p>
             </div>
             
-            <div class="alexandre">
-                <strong>🆕 NOVIDADE!</strong><br>
-                A Janine agora detecta automaticamente quando você precisa falar com Alexandre!<br>
-                <strong>Experimente perguntar sobre:</strong><br>
-                - "Que datas estão disponíveis?"<br>
-                - "Quanto custa exatamente?"<br>
-                - "Posso marcar para o dia 15?"
+            <div class="v2">
+                <strong>VERSÃO 2.0!</strong><br>
+                ✅ Janine agora direciona dúvidas complexas para Alexandre automaticamente<br>
+                ✅ Detecção inteligente de perguntas que precisam atenção humana<br>
+                ✅ Fallback melhorado para situações específicas
             </div>
             
             <div class="nova">
                 <strong>FUNCIONALIDADES:</strong><br>
-                ✅ Marcar eventos<br>
-                ✅ Direcionamento inteligente para Alexandre<br>
-                ✅ Respostas sobre o espaço
+                • "Quero marcar um evento" → Processo completo<br>
+                • Perguntas específicas → Direciona para Alexandre<br>
+                • Dúvidas técnicas → Contato direto WhatsApp
             </div>
             
             <div id="chat-box" class="chat-box">
                 <div class="message bot">
-                    Olá! Sou a Janine!<br><br>
+                    Olá! Sou a Janine v2.0!<br><br>
                     Ajudo com informações sobre nosso espaço para festas familiares em Vargem Grande!<br><br>
-                    <strong>Agora com direcionamento inteligente para Alexandre!</strong><br><br>
+                    <strong>NOVIDADE:</strong> Se sua pergunta for muito específica, vou te conectar diretamente com Alexandre!<br><br>
                     <strong>Vibrações Positivas!</strong>
                 </div>
             </div>
             
             <div class="input-area">
-                <input type="text" id="message-input" placeholder="Pergunte sobre datas, eventos, orçamentos..." onkeypress="if(event.key==='Enter') enviarMensagem()">
+                <input type="text" id="message-input" placeholder="Digite sua pergunta sobre eventos familiares..." onkeypress="if(event.key==='Enter') enviarMensagem()">
                 <button onclick="enviarMensagem()">Enviar</button>
             </div>
             
@@ -1352,6 +1414,7 @@ def home():
                 <p><strong>Horários:</strong> Das 8h às 18h (sábado ou domingo)</p>
                 <p><strong>Capacidade:</strong> Até 100 convidados</p>
                 <p><strong>Eventos:</strong> Aniversários, Batizados, Chás, Casamentos, Formaturas</p>
+                <p><strong>V2.0:</strong> Fallback inteligente para Alexandre em dúvidas complexas</p>
             </div>
         </div>
 
@@ -1376,13 +1439,248 @@ def home():
                 
                 const data = await response.json();
                 
-                // Adiciona resposta da IA com indicador se foi direcionado para Alexandre
-                let responseClass = 'bot';
-                if (data.metadata && data.metadata.direcionado_alexandre) {
-                    responseClass = 'bot alexandre';
+                // Verifica se foi direcionado para Alexandre
+                const isAlexandre = data.metadata && data.metadata.direcionado_alexandre;
+                const className = isAlexandre ? 'message bot alexandre' : 'message bot';
+                
+                // Adiciona resposta da IA
+                let responseText = data.response.replace(/\n/g, '<br>');
+                if (isAlexandre) {
+                    responseText = '🔄 <strong>Direcionado para Alexandre:</strong><br>' + responseText;
                 }
                 
-                chatBox.innerHTML += `<div class="message ${responseClass}"><strong>Janine:</strong> ${data.response.replace(/\n/g, '<br>')}</div>`;
+                chatBox.innerHTML += `<div class="${className}"><strong>Janine:</strong> ${responseText}</div>`;
                 
             } catch (error) {
-                chatBox.innerHTML += `<div class="message bot"><strong>Janine:</strong> Erro de conexão
+                chatBox.innerHTML += `<div class="message bot alexandre"><strong>Janine:</strong> Erro de conexão. Fale diretamente com Alexandre: 21 98124-6196. Vibrações Positivas!</div>`;
+            }
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        // Exemplos para testar
+        function testarExemplo(exemplo) {
+            document.getElementById('message-input').value = exemplo;
+            enviarMensagem();
+        }
+        </script>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <p><strong>Experimente estes exemplos:</strong></p>
+            <button onclick="testarExemplo('Quero marcar um evento')" style="margin: 5px; padding: 5px 10px;">Marcar Evento</button>
+            <button onclick="testarExemplo('Qual o processo técnico detalhado para contratação?')" style="margin: 5px; padding: 5px 10px;">Pergunta Complexa</button>
+            <button onclick="testarExemplo('Quanto custa?')" style="margin: 5px; padding: 5px 10px;">Orçamento</button>
+            <button onclick="testarExemplo('Onde fica?')" style="margin: 5px; padding: 5px 10px;">Localização</button>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html)
+
+# NOVA ROTA: Teste específico para fallback Alexandre
+@app.route('/teste-alexandre', methods=['GET'])
+def teste_alexandre():
+    """Rota para testar o sistema de fallback para Alexandre"""
+    try:
+        exemplos_teste = [
+            {
+                "pergunta": "Qual o processo técnico detalhado para contratação?",
+                "esperado": "Pergunta complexa - deve direcionar para Alexandre"
+            },
+            {
+                "pergunta": "Preciso de informações específicas sobre decoração e buffet parceiro",
+                "esperado": "Pergunta específica - deve direcionar para Alexandre"
+            },
+            {
+                "pergunta": "Tenho uma situação especial e urgente para amanhã",
+                "esperado": "Urgência - deve direcionar para Alexandre"
+            },
+            {
+                "pergunta": "Oi, quanto custa?",
+                "esperado": "Pergunta simples - resposta direta"
+            },
+            {
+                "pergunta": "Onde fica o espaço?",
+                "esperado": "Pergunta simples - resposta direta"
+            }
+        ]
+        
+        resultados = []
+        
+        for exemplo in exemplos_teste:
+            pergunta = exemplo["pergunta"]
+            intencao = analisar_intencao(pergunta)
+            eh_complexa = eh_pergunta_complexa_para_alexandre(pergunta)
+            resposta = gerar_resposta_otimizada(pergunta)
+            
+            # Verifica se foi direcionado para Alexandre
+            direcionado = "Alexandre" in resposta and "21 98124-6196" in resposta
+            
+            resultados.append({
+                "pergunta": pergunta,
+                "intencao_detectada": intencao,
+                "pergunta_complexa": eh_complexa,
+                "direcionado_alexandre": direcionado,
+                "resposta_preview": resposta[:100] + "..." if len(resposta) > 100 else resposta,
+                "esperado": exemplo["esperado"],
+                "status": "✅ Correto" if (eh_complexa == direcionado) else "❌ Verificar"
+            })
+        
+        return jsonify({
+            "sistema": "Teste Fallback Alexandre",
+            "timestamp": datetime.now().isoformat(),
+            "total_testes": len(resultados),
+            "resultados": resultados,
+            "estatisticas": {
+                "perguntas_complexas_detectadas": sum(1 for r in resultados if r["pergunta_complexa"]),
+                "direcionamentos_alexandre": sum(1 for r in resultados if r["direcionado_alexandre"]),
+                "taxa_precisao": round(sum(1 for r in resultados if "✅" in r["status"]) / len(resultados) * 100, 2)
+            },
+            "melhorias_v2": {
+                "deteccao_complexidade": "Ativa",
+                "fallback_alexandre": "Ativa",
+                "respostas_variadas": "Ativa"
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Erro no teste: {e}"}), 500
+
+# NOVA ROTA: Configurações e status do sistema
+@app.route('/sistema', methods=['GET'])
+def sistema_status():
+    """Informações detalhadas do sistema Janine AI"""
+    try:
+        return jsonify({
+            "sistema": "Janine AI v2.0",
+            "versao": "2.0.0",
+            "especialidade": "Espaço para Festas Familiares - Vargem Grande",
+            "timestamp": datetime.now().isoformat(),
+            
+            "configuracao": {
+                "ollama_url": OLLAMA_BASE_URL,
+                "modelo": OLLAMA_MODEL,
+                "ping_interval": f"{PING_INTERVAL}s",
+                "cache_size": len(CACHE_RESPOSTAS),
+                "knowledge_base_categorias": len(KNOWLEDGE_BASE)
+            },
+            
+            "status_servicos": {
+                "ollama_conectado": verificar_ollama(),
+                "auto_ping_ativo": True,
+                "cache_ativo": len(CACHE_RESPOSTAS) > 0,
+                "historico_ativo": len(HISTORICO_CONVERSAS) > 0 if 'HISTORICO_CONVERSAS' in globals() else False
+            },
+            
+            "funcionalidades_v2": {
+                "fallback_alexandre": {
+                    "ativo": True,
+                    "descricao": "Direciona dúvidas complexas para Alexandre",
+                    "triggers": [
+                        "Perguntas muito específicas",
+                        "Situações particulares",
+                        "Perguntas técnicas",
+                        "Emergências/urgência",
+                        "Negociações",
+                        "Problemas/reclamações",
+                        "Outros serviços"
+                    ]
+                },
+                "deteccao_complexidade": {
+                    "ativo": True,
+                    "descricao": "Identifica perguntas que precisam atenção humana"
+                },
+                "respostas_variadas": {
+                    "ativo": True,
+                    "descricao": "Múltiplas opções de resposta para fallback",
+                    "quantidade": len(FALLBACK_ALEXANDRE_RESPOSTAS)
+                }
+            },
+            
+            "informacoes_espaco": {
+                "nome": "Espaço para Festas Familiares",
+                "endereco": "Estrada do Cabungui, 772, Vargem Grande - RJ",
+                "capacidade": "Até 100 convidados",
+                "horarios": "Das 8h às 18h",
+                "dias_funcionamento": "Sábado OU Domingo",
+                "exclusividade": "Apenas um evento por fim de semana",
+                "whatsapp": "21 98124-6196 (Alexandre)",
+                "missao": "Unir famílias e amigos para momentos especiais com a energia da natureza"
+            },
+            
+            "rotas_disponiveis": [
+                "/ - Interface web de teste",
+                "/chat - Conversa com Janine AI",
+                "/health - Status do sistema",
+                "/estatisticas - Métricas de uso",
+                "/ping - Auto-ping check",
+                "/teste-alexandre - Teste do fallback Alexandre",
+                "/sistema - Este status detalhado"
+            ]
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Erro no status do sistema: {e}"}), 500
+
+if __name__ == '__main__':
+    print("Janine AI v2.0 - Espaço para Festas Familiares")
+    print("=" * 70)
+    print("IA: Janine")  
+    print("Local: Vargem Grande - Rio de Janeiro")
+    print("Endereço: Estrada do Cabungui, 772")
+    print("WhatsApp: 21 98124-6196 (Alexandre)")
+    print("Capacidade: Até 100 convidados")
+    print("Horários: Das 8h às 18h (sábado ou domingo)")
+    print("Especialidade: Festas Familiares")
+    print("Missão: Unir famílias com energia da natureza")
+    print("=" * 70)
+    
+    # Carrega base de conhecimento
+    try:
+        carregar_conhecimento_especializado()
+    except Exception as e:
+        print(f"⚠️ Erro ao carregar conhecimento: {e}")
+    
+    # Status
+    if verificar_ollama():
+        print("✅ Ollama CONECTADO - Modo Híbrido")
+    else:
+        print("⚠️ Ollama offline - Modo Base Própria + Fallback Alexandre")
+    
+    print("MELHORIAS V2.0 APLICADAS:")
+    print("   🆕 FALLBACK ALEXANDRE: Direciona dúvidas complexas automaticamente")
+    print("   🆕 DETECÇÃO DE COMPLEXIDADE: Identifica perguntas que precisam atenção humana")
+    print("   🆕 RESPOSTAS VARIADAS: Múltiplas opções para fallback")
+    print("   ✅ FUNCIONALIDADE: Marcar Eventos")
+    print("   ✅ Textos SIMPLIFICADOS e CLAROS")
+    print("   ✅ Palavras fáceis de entender")
+    print("   ✅ Frases mais diretas")
+    print("   ✅ Reconhece várias formas de pedir evento:")
+    print("      - 'Quero marcar um evento'")
+    print("      - 'Vou querer um evento'")
+    print("      - 'Preciso fazer uma festa'")
+    print("      - 'Gostaria de agendar'")
+    print("      - E muitas outras variações!")
+    print("   🆕 DIRECIONAMENTO INTELIGENTE:")
+    print("      - Perguntas específicas → Alexandre")
+    print("      - Situações particulares → Alexandre")  
+    print("      - Urgências → Alexandre")
+    print("      - Negociações → Alexandre")
+    print("   ✅ Interface web atualizada com indicadores")
+    print("🔄 Auto-ping ativo (5min)")
+    print("🌐 Interface web disponível em /")
+    print("📊 Estatísticas em /estatisticas")
+    print("🧪 Teste Alexandre em /teste-alexandre")
+    print("⚙️ Status sistema em /sistema")
+    print("🚀 Servidor iniciando na porta 5001...")
+    print("=" * 70)
+    print("📞 IMPORTANTE: Se Janine não souber responder, ela direciona para Alexandre!")
+    print("📞 WhatsApp Alexandre: 21 98124-6196")
+    print("=" * 70)
+    
+    app.run(
+        host='0.0.0.0',
+        port=5001,
+        debug=False,
+        threaded=True
+    )
