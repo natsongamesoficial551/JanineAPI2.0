@@ -419,7 +419,7 @@ Posso te ajudar com:
 - Agendamento de visitas
 - Festas para até 100 pessoas
 - Localização em Vargem Grande
-- Horários: 8h às 18h (sábado ou domingo)
+- Horários: 9h às 19h (sábado ou domingo)
 
 Em que posso ajudar você?
 
@@ -442,7 +442,7 @@ Posso te ajudar com:
 - Agendar visitas para conhecer o espaço
 - Informações sobre festas até 100 pessoas
 - Localização: Vargem Grande - RJ
-- Horários: 8h às 18h (sábado ou domingo)
+- Horários:9h às 19h (sábado ou domingo)
 
 Nossa missão: Unir famílias com a energia da natureza!
 
@@ -501,7 +501,7 @@ Para marcar sua festa, é simples:
 3. Alexandre vai fazer seu orçamento personalizado
 
 Informações importantes:
-- Horário: 8h às 18h
+- Horário: 9h às 19h
 - Local: Vargem Grande - RJ
 - Apenas um evento por fim de semana
 - Ambiente familiar com energia da natureza
@@ -530,7 +530,7 @@ Cada evento é único, Alexandre faz orçamento sob medida considerando:
 - Tipo de evento
 - Número de convidados (até 100 pessoas)
 - Data escolhida (sábado ou domingo)
-- Horário: 8h às 18h
+- Horário: 9h às 19h
 
 Vantagens:
 - Apenas um evento por fim de semana
@@ -632,7 +632,7 @@ Vibrações Positivas!""",
                 "resposta": """Horários:
 
 Horário para eventos:
-Das 8h às 18h
+Das 9h às 19h
 
 Disponibilidade:
 - Finais de semana: Sábado OU Domingo
@@ -642,7 +642,7 @@ Disponibilidade:
 Vantagens do nosso horário:
 - Manhã: Perfeita para chás e eventos matinais
 - Tarde: Ideal para almoços e festas
-- Até 18h: Tempo suficiente para celebrar
+- Até 19h: Tempo suficiente para celebrar
 - Luz natural: Aproveita a beleza do dia
 
 Por que esse horário:
@@ -655,7 +655,7 @@ Para agendar sua data:
 WhatsApp: 21 98124-6196 (Alexandre)
 
 Vibrações Positivas!""",
-                "keywords": ["horario", "que horas", "funcionamento", "8h", "18h"]
+                "keywords": ["horario", "que horas", "funcionamento", "9h", "19h"]
             },
 
             "capacidade": {
@@ -705,7 +705,7 @@ Celebrações familiares que fazemos:
 
 Nosso diferencial:
 - Apenas um evento por fim de semana
-- Horário: 8h às 18h (sábado ou domingo)
+- Horário: 9h às 19h (sábado ou domingo)
 - Ambiente familiar em Vargem Grande
 - Energia da natureza
 - Até 100 convidados
@@ -736,7 +736,7 @@ Unir famílias e amigos:
 
 De forma leve:
 - Tranquilidade no ambiente natural
-- Das 8h às 18h para aproveitar
+- Das 9h às 19h para aproveitar
 - Apenas seu evento no fim de semana
 - Leveza da natureza de Vargem Grande
 
@@ -804,7 +804,7 @@ def processar_ollama_focado(pergunta, intencao):
 ESPAÇO PARA FESTAS FAMILIARES - VARGEM GRANDE:
 - Local: Estrada do Cabungui, 772, Vargem Grande - RJ
 - Capacidade: Até 100 convidados
-- Horário: Das 8h às 18h (sábado OU domingo)
+- Horário: Das 9h às 19h (sábado OU domingo)
 - WhatsApp: 21 98124-6196 (Alexandre)
 - Missão: "Unir famílias e amigos, de forma leve e plena, com a energia da natureza"
 - Exclusividade: Apenas um evento por fim de semana
@@ -965,7 +965,7 @@ def eh_pergunta_festa_focada(pergunta):
             "100 pessoas", "convidados", "comporta",
             
             # Horários
-            "horario", "8h", "18h", "manhã", "tarde", "sabado", "domingo", "fim de semana",
+            "horario", "9h", "19h", "manhã", "tarde", "sabado", "domingo", "fim de semana",
             
             # Contato
             "contato", "whatsapp", "telefone", "alexandre", "falar", "ligar", "chamar",
@@ -1066,7 +1066,7 @@ def gerar_resposta_otimizada(pergunta):
             "saudacao": "Olá! Sou a Janine do espaço de festas em Vargem Grande! Como posso ajudar? Vibrações Positivas!",
             "despedida": "Até logo! Fico à disposição para ajudar com seu evento! Vibrações Positivas!",
             "sobre_ia": "Sou a Janine! Ajudo com festas familiares em Vargem Grande. Posso falar sobre orçamentos, visitas e eventos! Vibrações Positivas!",
-            "sobre_espaco": "Nosso espaço em Vargem Grande é perfeito para festas familiares! Até 100 pessoas, das 8h às 18h. WhatsApp: 21 98124-6196 (Alexandre). Vibrações Positivas!",
+            "sobre_espaco": "Nosso espaço em Vargem Grande é perfeito para festas familiares! Até 100 pessoas, das 9h às 19h. WhatsApp: 21 98124-6196 (Alexandre). Vibrações Positivas!",
             "elogio_ia": "Obrigada! Fico feliz em ajudar! Vibrações Positivas!",
             "elogio_espaco": "Que bom que gostou! Nosso espaço em Vargem Grande é muito especial! Vibrações Positivas!",
             "marcar_evento": "Que legal! Para marcar sua festa é fácil: Chame Alexandre no WhatsApp 21 98124-6196. Ele vai fazer seu orçamento e cuidar de tudo! Vibrações Positivas!",
@@ -1075,7 +1075,7 @@ def gerar_resposta_otimizada(pergunta):
             "contato": "WhatsApp: 21 98124-6196 (Alexandre). Ele cuida de orçamentos e visitas! Vibrações Positivas!",
             "visita": "Para visitar nosso espaço chame Alexandre: 21 98124-6196. Você vai amar a energia do lugar! Vibrações Positivas!",
             "localizacao": "Estrada do Cabungui, 772, Vargem Grande - RJ. Um local com energia da natureza! Vibrações Positivas!",
-            "horarios": "Funcionamos das 8h às 18h, sábado ou domingo. Apenas um evento por fim de semana! Vibrações Positivas!",
+            "horarios": "Funcionamos das 9h às 19h, sábado ou domingo. Apenas um evento por fim de semana! Vibrações Positivas!",
             "capacidade": "Nosso espaço é perfeito para até 100 pessoas! Ideal para festas familiares! Vibrações Positivas!",
             "eventos": "Fazemos aniversários, batizados, chás, casamentos e formaturas! WhatsApp: 21 98124-6196. Vibrações Positivas!",
             "missao": "Nossa missão: Unir famílias para momentos especiais com a energia da natureza! Vibrações Positivas!",
@@ -1145,7 +1145,7 @@ def health():
             "info_espaco": {
                 "endereco": "Estrada do Cabungui, 772, Vargem Grande - RJ",
                 "capacidade": "Até 100 convidados",
-                "horarios": "Das 8h às 18h",
+                "horarios": "Das 9h às 19h",
                 "dias": "Sábado OU Domingo",
                 "exclusividade": "Apenas um evento por fim de semana",
                 "whatsapp": "21 98124-6196 (Alexandre)"
@@ -1411,7 +1411,7 @@ def home():
             
             <div class="info">
                 <p><strong>Local:</strong> Estrada do Cabungui, 772, Vargem Grande - RJ</p>
-                <p><strong>Horários:</strong> Das 8h às 18h (sábado ou domingo)</p>
+                <p><strong>Horários:</strong> Das 9h às 19h (sábado ou domingo)</p>
                 <p><strong>Capacidade:</strong> Até 100 convidados</p>
                 <p><strong>Eventos:</strong> Aniversários, Batizados, Chás, Casamentos, Formaturas</p>
                 <p><strong>V2.0:</strong> Fallback inteligente para Alexandre em dúvidas complexas</p>
@@ -1601,7 +1601,7 @@ def sistema_status():
                 "nome": "Espaço para Festas Familiares",
                 "endereco": "Estrada do Cabungui, 772, Vargem Grande - RJ",
                 "capacidade": "Até 100 convidados",
-                "horarios": "Das 8h às 18h",
+                "horarios": "Das 9h às 19h",
                 "dias_funcionamento": "Sábado OU Domingo",
                 "exclusividade": "Apenas um evento por fim de semana",
                 "whatsapp": "21 98124-6196 (Alexandre)",
@@ -1630,7 +1630,7 @@ if __name__ == '__main__':
     print("Endereço: Estrada do Cabungui, 772")
     print("WhatsApp: 21 98124-6196 (Alexandre)")
     print("Capacidade: Até 100 convidados")
-    print("Horários: Das 8h às 18h (sábado ou domingo)")
+    print("Horários: Das 9h às 19h (sábado ou domingo)")
     print("Especialidade: Festas Familiares")
     print("Missão: Unir famílias com energia da natureza")
     print("=" * 70)
